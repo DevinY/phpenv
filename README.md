@@ -1,4 +1,4 @@
-# persrv
+# phpenv
 Docker php 容器化專案執行環境
 
 透過.env指定專案路徑，搭配ssh服務，就能使用VSCode的ssh-remote簡易的連進容器中。
