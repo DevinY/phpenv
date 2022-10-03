@@ -2,7 +2,7 @@ version: '3.6'
 services:
  drive:
   build:
-    context: ../dockerfiles
+    context: ./dockerfiles
     dockerfile: Dockerfile-drive
     args:
       uid: ${USER_ID-1000}
