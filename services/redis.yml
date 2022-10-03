@@ -1,0 +1,13 @@
+# redis ports
+#- "127.0.0.1:6379:6379"
+
+#Dockerhub官方redis image
+version: '3.6'
+services:
+ redis:
+  image: redis
+  networks:
+    - dlaravel_net
+
+networks:
+    dlaravel_net:

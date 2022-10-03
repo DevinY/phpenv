@@ -1,0 +1,19 @@
+version: '3.6'
+services:
+ drive:
+  build:
+    context: ../dockerfiles
+    dockerfile: Dockerfile-drive
+    args:
+      uid: ${USER_ID-1000}
+      gid: ${GROUP_ID-1000}
+  image: ${PROJECT}_drive
+  ports:
+    - ${DRIVE_PORT-2223}:22
+  volumes:
+    - ${FOLDER-./project}:/var/www/html
+  networks:
+    - dlaravel_net
+
+networks:
+    dlaravel_net:

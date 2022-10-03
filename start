@@ -1,0 +1,36 @@
+#!/bin/bash
+function start {
+    mkdir -p etc/cache
+    touch authorized_keys
+    echo ${APP_URL}
+    PROJECT=$1
+    args=" -f docker-compose.yml "
+    for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
+    do
+        if [ -f "services/${SERVICE}.yml" ];then
+            args+=" -f services/${SERVICE}.yml "
+        fi
+    done
+    docker-compose -p ${PROJECT} ${args} up -d
+}
+
+if [ -f .env ];then
+    #start multiple project
+    if [[ "$1" = 'all' ]];then
+            for PROJECT in $(grep 'PROJECT' $(find envs -type f -not -path 'envs/.*' -depth 1)|cut -d= -f2)
+            do
+                ENV_FILE=$(grep -lE "^PROJECT=${PROJECT}\$" envs/*)
+                ln -sf ${ENV_FILE} .env
+                source .env
+                echo "Start up ${PROJECT}"
+                start ${PROJECT}
+            done
+            ./all
+        exit
+    fi
+    #single project
+    PROJECT=$(grep 'PROJECT' .env|cut -d= -f2)
+    start ${PROJECT}
+else
+    echo ".env not found"
+fi

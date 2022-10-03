@@ -1,0 +1,5 @@
+#!/bin/bash
+source .env
+
+docker-compose -p ${PROJECT} exec php php artisan $@
+

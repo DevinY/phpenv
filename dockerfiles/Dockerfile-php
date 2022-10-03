@@ -1,0 +1,24 @@
+From deviny/fpm:8.1.11
+ARG USER_ID
+ENV USER_ID ${USER_ID:-1000}
+
+ARG GROUP_ID
+ENV GROUP_ID ${GROUP_ID:-1000}
+
+USER root
+RUN sed -i "s/dlaravel:x:1000/dlaravel:x:${GROUP_ID}/" /etc/group
+RUN usermod -u ${USER_ID} -g ${GROUP_ID} dlaravel
+RUN chown -R ${USER_ID} /home/dlaravel
+RUN apt-get install -y locales
+RUN echo "Asia/Taipei" > /etc/timezone && \
+    dpkg-reconfigure -f noninteractive tzdata && \
+    sed -i -e 's/# zh_TW.UTF-8 UTF-8/zh_TW.UTF-8 UTF-8/' /etc/locale.gen && \
+    echo 'LANG="zh_TW.UTF-8"'>/etc/default/locale && \
+    dpkg-reconfigure --frontend=noninteractive locales && \
+    update-locale LANG=zh_TW.UTF-8
+
+
+USER dlaravel
+ENV LANG zh_TW.UTF-8
+ENV LANGUAGE zh_TW.UTF-8
+ENV LC_ALL zh_TW.UTF-8

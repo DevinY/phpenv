@@ -1,0 +1,48 @@
+#!/bin/bash
+#echo "Before You change env, make sure stop current project you are running"
+#檢測是否有env檔存在，不存再就建立
+NUM=$(ls -1 envs|wc -l)
+if [ $NUM -eq 0 ];then
+    echo '#SERVICES="mariadb"'> envs/default
+    echo "PROJECT=default" >> envs/default
+    echo "APP_URL=http://127.0.0.1:1050" >> envs/default
+    echo "FOLDER=.." >> envs/default
+    echo "HTTP_PORT=1050" >> envs/default
+    echo "HTTPS_PORT=1150" >> envs/default
+    echo "DB_PORT=1250" >> envs/default
+    echo "SSH_PORT=2222" >> envs/default
+    echo "DRIVE_PORT=2223" >> envs/default
+    echo "USER_ID=1000" >> envs/default
+    echo "GROUP_ID=1000" >> envs/default
+    echo "Default env not found, create default to envs folder."
+    echo "You can now edit your .env file to start up."
+    ln -sf envs/default .env
+    exit
+fi
+
+
+echo "Type number to select your project environment:"
+array="$(cd envs&&ls *|sort)"
+touch authorized_keys
+
+ select option in ${array[@]}
+do
+    case $option in
+        *) 
+            if [ ! $option ];then
+                    break
+                else
+                        ln -sf envs/$option .env
+                        ls -l .env|sed -E "s/^(l.*->)(.*)/.env link to\2/g"
+                        . .env
+                        if [ ! -d $FOLDER ];then
+                            echo "Cant not found project folder ${FOLDER}"
+                            exit
+                        fi
+                        echo -e "==== current env file ====="
+                        cat .env
+                    break
+            fi
+            ;;
+    esac
+done

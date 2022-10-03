@@ -1,0 +1,26 @@
+#!/bin/bash
+if [ ! -f .env ];then
+    echo "dot env file is required."
+    exit
+fi
+source .env
+source .functions.sh
+
+#docker-compose -p ${PROJECT} $@
+
+if [ -f .env ];then
+    source .env
+    touch authorized_keys
+    PROJECT=$(grep 'PROJECT' .env|cut -d= -f2)
+    echo ${APP_URL}
+    args=" -f docker-compose.yml "
+    for SERVICE in $(grep -i "SERVICES" .env|cut -d= -f2|sed 's/"//g')
+    do
+        if [ -f "services/${SERVICE}.yml" ];then
+            args+=" -f services/${SERVICE}.yml "
+        fi
+    done
+    docker-compose -p ${PROJECT} ${args} $@
+else
+    echo ".env not found"
+fi

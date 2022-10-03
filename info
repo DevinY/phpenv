@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "DotEnv Settings"
+cat .env

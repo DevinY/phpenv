@@ -1,0 +1,10 @@
+etc/default-ssl.conf
+authorized_keys
+!dockerfiles/authorized_keys
+project
+.env
+cert.crt
+cert.key
+etc/cache
+v3.ext
+*.swp

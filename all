@@ -1,0 +1,12 @@
+#!/bin/bash
+CURRENT_PROJECT=$(grep "PROJECT" .env|cut -d= -f2)
+for PROJECT in $(grep 'PROJECT' $(find envs -type f -not -path 'envs/.*' -depth 1)|cut -d= -f2)
+do
+    if [[ ${PROJECT} = ${CURRENT_PROJECT} ]]; then
+        echo "Project: * ${PROJECT} (current)"
+        else
+        echo "Project: ${PROJECT}"
+    fi
+    docker-compose -p ${PROJECT} ps
+    echo -e "\n"
+done
