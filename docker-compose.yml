@@ -35,10 +35,11 @@ services:
     - ${FOLDER-./project}:/var/www/html
     - ./etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
     - ./etc/cache:/home/dlaravel/.composer/cache
-    #- ./etc/supervisor/laravel.conf:/etc/supervisor/conf.d/laravel.conf
+    - ./etc/supervisor:/etc/supervisor/conf.d
   environment:
     - TZ=Asia/Taipei
     - project=${HOST-localhost}
+  command: ["sudo", "/usr/bin/supervisord"]
   networks:
     - dlaravel_net
 #=== top-level netowks key ======================
