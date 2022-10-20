@@ -1,3 +1,13 @@
 #!/bin/bash
+if [[ "$1" = 'all' ]];then
+    . ./all
+    exit
+fi
+
+if [[ "$1" = 'ports' ]];then
+    ./ports
+    exit
+fi
+
 echo "DotEnv Settings"
 cat .env

@@ -14,6 +14,11 @@ if [[ "$1" = 'info' && "$2" = 'all' ]];then
     exit
 fi
 
+if [[ "$1" = 'info' && "$2" = 'ports' ]];then
+    ./ports
+    exit
+fi
+
 if [[ "$1" = 'all' ]];then
     . ./all
     exit
