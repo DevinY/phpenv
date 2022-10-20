@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function exec_bash {
-    echo "Enter $(grep -E 'PROJECT=.+$' .env|cut -d= -f2) project."|grep -E "\s.+\s" --color
+    echo "The \"$(grep -E 'PROJECT=.+$' .env|cut -d= -f2)\" project of the php container."
     docker-compose  -p ${PROJECT} \
         exec -w /var/www/html/$2 \
         -u dlaravel \
