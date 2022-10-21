@@ -1,0 +1,47 @@
+version: '3.6'
+services:
+#=== web service ======================
+ web:
+  build:
+    context: ./dockerfiles
+    dockerfile: Dockerfile-nginx
+    args:
+      USER_ID: ${USER_ID-1000}
+      GROUP_ID: ${GROUP_ID-1000}
+  image: ${PROJECT}_nginx
+  dns: 8.8.8.8
+  depends_on:
+    - php
+  ports:
+    - ${HTTP_PORT-1050}:80
+    #- ${HTTPS_PORT-1250}:443
+  volumes:
+  - ${FOLDER-./project}:/var/www/html
+  - ./etc:/etc/nginx/conf.d
+  networks:
+    - dlaravel_net
+  
+#=== php service ==========================
+ php:
+  build:
+    context: ./dockerfiles
+    dockerfile: Dockerfile-php-7.4
+    args:
+      USER_ID: ${USER_ID-1000}
+      GROUP_ID: ${GROUP_ID-1000}
+  image: ${PROJECT}_php
+  volumes:
+    - ./etc/php:/usr/local/etc/php/conf.d
+    - ${FOLDER-./project}:/var/www/html
+    - ./etc/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
+    - ./etc/cache:/home/dlaravel/.composer/cache
+    - ./etc/supervisor:/etc/supervisor/conf.d
+  environment:
+    - TZ=Asia/Taipei
+    - project=${HOST-localhost}
+  command: ["sudo", "/usr/bin/supervisord"]
+  networks:
+    - dlaravel_net
+#=== top-level netowks key ======================
+networks:
+    dlaravel_net:

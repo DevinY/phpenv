@@ -3,6 +3,7 @@
 #檢測是否有env檔存在，不存再就建立
 NUM=$(ls -1 envs|wc -l)
 if [ $NUM -eq 0 ];then
+    echo '#DEFAULT="custom"'> envs/default
     echo '#SERVICES="mariadb"'> envs/default
     echo "PROJECT=default" >> envs/default
     echo "APP_URL=http://127.0.0.1:1050" >> envs/default

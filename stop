@@ -1,20 +1,6 @@
 #!/bin/bash
-
-function stop {
-    touch authorized_keys
-    echo ${APP_URL}
-    PROJECT=$1
-    args=" -f docker-compose.yml "
-    for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
-    do
-        if [ -f "services/${SERVICE}.yml" ];then
-            args+=" -f services/${SERVICE}.yml "
-        fi
-    done
-    docker-compose -p ${PROJECT} ${args} down --remove-orphans
-}
-
 if [ -f .env ];then
+    source .functions.sh
     #Stop multiple project
     if [[ "$1" = 'all' ]];then
             for PROJECT in $(grep 'PROJECT' $(find envs -type f -not -path 'envs/.*' -depth 1)|cut -d= -f2)
