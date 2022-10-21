@@ -9,6 +9,25 @@ function exec_bash {
     exit
 }
 
+function console() {
+    if [ -f .env ];then
+        source .env
+        touch authorized_keys
+        PROJECT=$(grep 'PROJECT' .env|cut -d= -f2)
+        echo ${APP_URL}
+        args=" -f docker-compose.yml "
+        for SERVICE in $(grep -i "SERVICES" .env|cut -d= -f2|sed 's/"//g')
+        do
+            if [ -f "services/${SERVICE}.yml" ];then
+                args+=" -f services/${SERVICE}.yml "
+            fi
+        done
+        docker-compose -p ${PROJECT} ${args} $@
+    else
+        echo ".env not found"
+    fi
+}
+
 if [[ "$1" = 'info' && "$2" = 'all' ]];then
     . ./all
     exit
@@ -71,4 +90,21 @@ fi
 #進入Drive容器
 if [ "$1" = 'drive' ];then
     exec_bash $1 public
+fi
+
+#檢測是否為.env名稱，如果是就進入
+if [ "$1" ];then
+    MATCH=$(ls envs/$1* 2>/dev/null|wc -l)
+    if [ ${MATCH} -eq 1 ];then
+        ls envs/$1* >/dev/null
+        if [ $? -eq 0 ];then
+            ENVFILE=$(ls envs/$1*)
+            #重新連結並進入容器
+            ln -sf ${ENVFILE} .env
+            grep "PROJECT" .env
+            shift 1
+            console exec php bash
+        fi
+        exit
+    fi
 fi
