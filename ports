@@ -1,2 +1,2 @@
 #!/bin/bash
-grep -E 'HTTP_PORT' envs/*|sed 's/=/ /g'|sort -k 2|sed 's/ /=/g'|grep -E '\d+$' --color
+grep -E 'HTTP_PORT' envs/*|sed 's/=/ /g'|sort -k 2|sed 's/ /=/g'|grep -E '[[:digit:]]+$' --color
