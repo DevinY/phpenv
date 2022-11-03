@@ -12,6 +12,9 @@ RUN chown -R ${USER_ID} /home/dlaravel
 RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel -R
 RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel/.ssh/authorized_keys
 
+COPY bash_aliases /home/dlaravel/.bash_aliases
+RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel/.bash_aliases
+
 RUN apt-get install -y locales
 RUN echo "Asia/Taipei" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata && \
@@ -20,8 +23,13 @@ RUN echo "Asia/Taipei" > /etc/timezone && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=zh_TW.UTF-8
 
-USER dlaravel
+RUN wget https://nodejs.org/dist/v18.12.0/node-v18.12.0-linux-x64.tar.xz
+RUN tar -xJf node-v18.12.0-linux-x64.tar.xz && \
+	rm node-v18.12.0-linux-x64.tar.xz && \
+	mv node-v18.12.0-linux-x64 /usr/local/node && \
+	echo 'export PATH=/usr/local/node/bin:$PATH' >> /etc/bash.bashrc
 
+USER dlaravel
 ENV LANG zh_TW.UTF-8
 ENV LANGUAGE zh_TW.UTF-8
 ENV LC_ALL zh_TW.UTF-8
