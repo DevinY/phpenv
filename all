@@ -2,15 +2,21 @@
 CURRENT_PROJECT=$(grep "PROJECT" .env|cut -d= -f2)
 for PROJECT in $(grep 'PROJECT' $(find envs -maxdepth 1 -type f -not -path 'envs/.*')|cut -d= -f2)
 do
-    if [[ ${PROJECT} = ${CURRENT_PROJECT} ]]; then
-        echo "Project: * ${PROJECT} (current)"
-        else
-        echo "Project: ${PROJECT}"
-    fi
-    SUBCMD="ps"
     if [ $1 ];then
-        SUBCMD=$1
+        if [ ! -f $1 ];then
+                echo "Sub command not found!"
+           exit 
+        fi
+        ln -sf "envs/${PROJECT}" .env
+        ./$1
+    else
+        if [[ ${PROJECT} = ${CURRENT_PROJECT} ]]; then
+            echo "Project: * ${PROJECT} (current)"
+            else
+            echo "Project: ${PROJECT}"
+        fi
+        docker-compose -p ${PROJECT} ps
     fi
-    docker compose -p ${PROJECT} ${SUBCMD}
     echo -e "\n"
 done
+
