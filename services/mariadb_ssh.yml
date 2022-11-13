@@ -1,0 +1,13 @@
+version: '3.6'
+services:
+ db:
+  image: mariadb:10.5.5
+  #ports:
+  #  - ${DB_PORT-1250}:3306
+  volumes:
+    #- ./etc/my.cnf:/etc/mysql/conf.d/my.cnf
+    - ./data/${PROJECT-default}:/var/lib/mysql
+  environment:
+    - MYSQL_ALLOW_EMPTY_PASSWORD= "yes"
+    - TZ=Asia/Taipei
+  network_mode: service:ssh

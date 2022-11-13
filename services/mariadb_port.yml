@@ -1,0 +1,17 @@
+version: '3.6'
+services:
+ db:
+  image: mariadb:10.5.5
+  hostname: db
+  ports:
+    - ${DB_PORT-1250}:3306
+  volumes:
+    - ./data/${PROJECT-default}:/var/lib/mysql
+  environment:
+    - MYSQL_ALLOW_EMPTY_PASSWORD= "yes"
+    - TZ=Asia/Taipei
+  networks:
+    - dlaravel_net
+
+networks:
+    dlaravel_net:
