@@ -1,4 +1,5 @@
 #!/bin/bash
 source .env
+source .functions.sh
 echo ${PROJECT} project nginx reload
 docker-compose  -p ${PROJECT} exec web sh -c "nginx -s reload"

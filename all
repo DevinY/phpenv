@@ -1,4 +1,5 @@
 #!/bin/bash
+source .functions.sh
 CURRENT_PROJECT=$(grep "PROJECT" .env|cut -d= -f2)
 for PROJECT in $(grep 'PROJECT' $(find envs -maxdepth 1 -type f -not -path 'envs/.*')|cut -d= -f2)
 do
@@ -7,8 +8,10 @@ do
                 echo "Sub command not found!"
            exit 
         fi
-        ln -sf "envs/${PROJECT}" .env
+    	ln -sf "envs/${PROJECT}" .env
         ./$1
+	#link back to current project
+    	ln -sf "envs/${CURRENT_PROJECT}" .env
     else
         if [[ ${PROJECT} = ${CURRENT_PROJECT} ]]; then
             echo "Project: * ${PROJECT} (current)"

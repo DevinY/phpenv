@@ -7,16 +7,19 @@ source .env
 source .functions.sh
 
 if [[ "$1" = 'info' && "$2" = 'all' ]];then
+    shift 2
     . ./all
     exit
 fi
 
 if [[ "$1" = 'info' && "$2" = 'ports' ]];then
+    shift 2
     ./ports
     exit
 fi
 
 if [[ "$1" = 'all' ]];then
+    shift 1
     . ./all
     exit
 fi

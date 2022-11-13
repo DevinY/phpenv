@@ -1,4 +1,11 @@
 #!/bin/bash
+docker --help|grep -qi "docker compose"
+if [ $? -eq 0 ];then
+        function docker-compose(){
+           docker compose $@
+        }
+fi
+
 function default(){
     DEFAULT=$(grep -Ei "^DEFAULT" .env|cut -d= -f2)
     if [ -z $DEFAULT ];then
