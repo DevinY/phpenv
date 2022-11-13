@@ -15,14 +15,14 @@ RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel/.ssh/authorized_keys
 COPY bash_aliases /home/dlaravel/.bash_aliases
 RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel/.bash_aliases
 
-RUN apt-get install -y locales
+RUN apt-get install -y locales redis-tools
 RUN echo "Asia/Taipei" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata && \
     sed -i -e 's/# zh_TW.UTF-8 UTF-8/zh_TW.UTF-8 UTF-8/' /etc/locale.gen && \
     echo 'LANG="zh_TW.UTF-8"'>/etc/default/locale && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=zh_TW.UTF-8
-
+RUN echo "ExposeAuthInfo yes" >> /etc/ssh/sshd_config
 RUN wget https://nodejs.org/dist/v18.12.0/node-v18.12.0-linux-x64.tar.xz
 RUN tar -xJf node-v18.12.0-linux-x64.tar.xz && \
 	rm node-v18.12.0-linux-x64.tar.xz && \

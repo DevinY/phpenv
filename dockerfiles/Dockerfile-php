@@ -13,7 +13,8 @@ RUN chown -R ${USER_ID} /home/dlaravel
 COPY bash_aliases /home/dlaravel/.bash_aliases
 RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel/.bash_aliases
 
-RUN apt-get install -y locales
+RUN apt-get install -y locales redis-tools
+
 RUN echo "Asia/Taipei" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata && \
     sed -i -e 's/# zh_TW.UTF-8 UTF-8/zh_TW.UTF-8 UTF-8/' /etc/locale.gen && \
