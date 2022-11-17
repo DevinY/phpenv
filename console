@@ -3,6 +3,7 @@ if [ ! -f .env ];then
     echo "dot env file is required."
     exit
 fi
+export CPU=$(uname -m)
 source .env
 source .functions.sh
 
@@ -89,5 +90,5 @@ if [ "$1" ];then
         exit
     fi
 fi
-
+echo $CPU
 console $@
