@@ -4,7 +4,7 @@ services:
  ssh:
   build:
     context: ./dockerfiles
-    dockerfile: Dockerfile-ssh
+    dockerfile: Dockerfile-ssh-${CPU-x86_64}
     args:
       USER_ID: ${USER_ID-1000}
       GROUP_ID: ${GROUP_ID-1000}
