@@ -3,15 +3,7 @@ if [ -f .env ];then
     source .functions.sh
     #start multiple project
     if [[ "$1" = 'all' ]];then
-            for PROJECT in $(grep 'PROJECT' $(find envs -type f -not -path 'envs/.*' -depth 1)|cut -d= -f2)
-            do
-                ENV_FILE=$(grep -lE "^PROJECT=${PROJECT}\$" envs/*)
-                ln -sf ${ENV_FILE} .env
-                source .env
-                echo "Start up ${PROJECT}"
-                start ${PROJECT}
-            done
-            ./all
+            ./all start
         exit
     fi
     #single project
