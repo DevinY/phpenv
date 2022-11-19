@@ -22,11 +22,17 @@ RUN echo "Asia/Taipei" > /etc/timezone && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=zh_TW.UTF-8
 
-RUN wget https://nodejs.org/dist/v18.12.0/node-v18.12.0-linux-x64.tar.xz
-RUN tar -xJf node-v18.12.0-linux-x64.tar.xz && \
-	rm node-v18.12.0-linux-x64.tar.xz && \
-	mv node-v18.12.0-linux-x64 /usr/local/node && \
+RUN wget https://nodejs.org/dist/v18.12.1/node-v18.12.1-linux-x64.tar.xz
+RUN tar -xJf node-v18.12.1-linux-x64.tar.xz && \
+	rm node-v18.12.1-linux-x64.tar.xz && \
+	mv node-v18.12.1-linux-x64 /usr/local/node && \
 	echo 'export PATH=/usr/local/node/bin:$PATH' >> /etc/bash.bashrc
+
+# Link /var/www/html to home director
+RUN ln -s /var/www/html /home/dlaravel/html
+
+# Add the cron job
+# RUN crontab -l | { cat; echo "* * * * * cd /var/www/html && /usr/local/bin/php artisan schedule:run >> /dev/null 2>&1"; } |crontab -
 
 USER dlaravel
 ENV LANG zh_TW.UTF-8

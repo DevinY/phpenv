@@ -28,6 +28,12 @@ RUN tar -xJf node-v18.12.1-linux-arm64.tar.xz && \
 	mv node-v18.12.1-linux-arm64 /usr/local/node && \
 	echo 'export PATH=/usr/local/node/bin:$PATH' >> /etc/bash.bashrc
 
+# Link /var/www/html to home director
+RUN ln -s /var/www/html /home/dlaravel/html
+
+# Add the cron job
+#RUN crontab -l | { cat; echo "* * * * * cd /var/www/html && /usr/local/bin/php artisan schedule:run >> /dev/null 2>&1"; } |crontab -
+
 USER dlaravel
 ENV LANG zh_TW.UTF-8
 ENV LANGUAGE zh_TW.UTF-8

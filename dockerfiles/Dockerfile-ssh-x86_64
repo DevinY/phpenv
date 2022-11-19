@@ -30,6 +30,9 @@ RUN tar -xJf node-v18.12.0-linux-x64.tar.xz && \
 	mv node-v18.12.0-linux-x64 /usr/local/node && \
 	echo 'export PATH=/usr/local/node/bin:$PATH' >> /etc/bash.bashrc
 
+# Link /var/www/html to home director
+RUN ln -s /var/www/html /home/dlaravel/html
+
 USER dlaravel
 ENV LANG zh_TW.UTF-8
 ENV LANGUAGE zh_TW.UTF-8
