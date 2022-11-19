@@ -1,5 +1,6 @@
 #!/bin/bash
 CURRENT_PROJECT=$(grep "PROJECT" .env|cut -d= -f2)
+CURRENT_PROJECT_FILE=$(grep PROJECT=${CURRENT_PROJECT} envs/*|cut -d: -f1)
 for PROJECT in $(grep 'PROJECT' $(find envs -maxdepth 1 -type f -not -path 'envs/.*')|cut -d= -f2)
 do
     if [[ ${PROJECT} = ${CURRENT_PROJECT} ]]; then
@@ -11,6 +12,10 @@ do
     if [ $1 ];then
         SUBCMD=$1
     fi
-    docker compose -p ${PROJECT} ${SUBCMD}
+    PROJECT_FILE=$(grep PROJECT=${PROJECT} envs/*|cut -d: -f1)
+    ln -sf ${PROJECT_FILE} .env
+    echo "Project FILE: ${PROJECT_FILE}"
+    ./console ${SUBCMD}
     echo -e "\n"
 done
+ln -sf ${CURRENT_PROJECT_FILE} .env
