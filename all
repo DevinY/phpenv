@@ -1,22 +1,20 @@
 #!/bin/bash
-if [ -f .env ];then
-    source .functions.sh
-    for PROJECT in $(grep 'PROJECT' $(find envs -maxdepth 1 -type f -not -path 'envs/.*')|cut -d= -f2)
-    do
-        if [[ ${PROJECT} = ${CURRENT_PROJECT} ]]; then
-            echo "Project: * ${PROJECT} (current)"
-            else
-            echo "Project: ${PROJECT}"
-        fi
-        SUBCMD=ps
-        if [ $1 ];then
-            SUBCMD=$1
-        fi
-        PROJECT_FILE=$(grep PROJECT=${PROJECT} envs/*|cut -d: -f1)
-        ln -sf ${PROJECT_FILE} .env
-        echo "Project FILE: ${PROJECT_FILE}"
-        ./console ${SUBCMD}
-        echo -e "\n"
-    done
-    ln -sf ${CURRENT_PROJECT_FILE} .env
-fi
+source .functions.sh
+for PROJECT in $(grep 'PROJECT' $(find envs -maxdepth 1 -type f -not -path 'envs/.*')|cut -d= -f2)
+do
+    if [[ ${PROJECT} = ${CURRENT_PROJECT} ]]; then
+        echo "Project: * ${PROJECT} (current)"
+        else
+        echo "Project: ${PROJECT}"
+    fi
+    SUBCMD=ps
+    if [ $1 ];then
+        SUBCMD=$1
+    fi
+    PROJECT_FILE=$(grep PROJECT=${PROJECT} envs/*|cut -d: -f1)
+    ln -sf ${PROJECT_FILE} .env
+    echo "Project FILE: ${PROJECT_FILE}"
+    ./console ${SUBCMD}
+    echo -e "\n"
+done
+ln -sf ${CURRENT_PROJECT_FILE} .env

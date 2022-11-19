@@ -6,6 +6,15 @@ if [ $? -eq 0 ];then
         }
 fi
 
+if [ -f .env ];then
+    CURRENT_PROJECT=$(grep "PROJECT" .env|cut -d= -f2)
+    CURRENT_PROJECT_FILE=$(grep PROJECT=${CURRENT_PROJECT} envs/*|cut -d: -f1)
+else
+    echo "No .env file are linked."
+    echo "Issue ./link command  to create one."
+    exit
+fi
+
 function default(){
     DEFAULT=$(grep -Ei "^DEFAULT" .env|cut -d= -f2)
     if [ -z $DEFAULT ];then
