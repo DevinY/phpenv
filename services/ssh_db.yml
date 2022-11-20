@@ -13,7 +13,6 @@ services:
     - ${SSH_PORT-2222}:22
     - ${DB_PORT-2222}:3306
   volumes:
-    - /source:/source
     - ./etc/php:/usr/local/etc/php/conf.d
     - ./etc/code-server:/home/dlaravel/.vscode-server
     - ./authorized_keys:/home/dlaravel/.ssh/authorized_keys
