@@ -25,7 +25,7 @@ services:
  php:
   build:
     context: ./dockerfiles
-    dockerfile: Dockerfile-php-7.4
+    dockerfile: Dockerfile-php-7.4-${CPU-x86_64}
     args:
       USER_ID: ${USER_ID-1000}
       GROUP_ID: ${GROUP_ID-1000}
