@@ -65,7 +65,6 @@ function console() {
         source .env
         touch authorized_keys
         PROJECT=$(grep 'PROJECT' .env|cut -d= -f2)
-        echo ${APP_URL}
         args=" -f $(default).yml "
         for SERVICE in $(grep -i "SERVICES" .env|cut -d= -f2|sed 's/"//g')
         do
@@ -73,7 +72,14 @@ function console() {
                 args+=" -f services/${SERVICE}.yml "
             fi
         done
-        docker-compose -p ${PROJECT} ${args} $@
+        TERM_STDOUT=$(docker-compose -p ${PROJECT} ${args} $@)
+        echo -e "$TERM_STDOUT"
+        #echo URL
+        if [ $DEFAULT ] && [ $DEFAULT = "random" ];then
+        echo -e "$TERM_STDOUT"|grep "${PROJECT}-web-1"|sed -r 's/.+0.0.0.0:([[:digit:]]+)->80.+/http:\/\/127.0.0.1:\1/g'
+        else
+            echo $APP_URL
+        fi
     else
         echo ".env not found"
     fi

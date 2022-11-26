@@ -10,4 +10,4 @@ if [[ "$1" = 'ports' ]];then
 fi
 
 echo "DotEnv Settings"
-cat .env
+cat .env|grep -vE '^#'
