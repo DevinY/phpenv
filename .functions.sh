@@ -72,13 +72,17 @@ function console() {
                 args+=" -f services/${SERVICE}.yml "
             fi
         done
-        TERM_STDOUT=$(docker-compose -p ${PROJECT} ${args} $@)
-        echo -e "$TERM_STDOUT"
-        #echo URL
-        if [ $DEFAULT ] && [ $DEFAULT = "random" ];then
-        echo -e "$TERM_STDOUT"|grep "${PROJECT}-web-1"|sed -r 's/.+0.0.0.0:([[:digit:]]+)->80.+/http:\/\/127.0.0.1:\1/g'
+        if [ $@ = "ps" ]; then
+            TERM_STDOUT=$(docker-compose -p ${PROJECT} ${args} $@)
+            echo -e "$TERM_STDOUT"
+            #echo URL
+            if [ $DEFAULT ] && [ $DEFAULT = "random" ];then
+            echo -e "$TERM_STDOUT"|grep "${PROJECT}-web-1"|sed -r 's/.+0.0.0.0:([[:digit:]]+)->80.+/http:\/\/127.0.0.1:\1/g'
+            else
+                echo $APP_URL
+            fi
         else
-            echo $APP_URL
+            docker-compose -p ${PROJECT} ${args} $@
         fi
     else
         echo ".env not found"
