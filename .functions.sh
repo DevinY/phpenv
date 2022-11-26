@@ -78,6 +78,11 @@ function console() {
             #echo URL
             if [ $DEFAULT ] && [ $DEFAULT = "random" ];then
             echo -e "$TERM_STDOUT"|grep "${PROJECT}-web-1"|sed -r 's/.+0.0.0.0:([[:digit:]]+)->80.+/http:\/\/127.0.0.1:\1/g'
+
+            PORT=$(echo -e "$TERM_STDOUT"|grep "${PROJECT}-web-1"|sed -r 's/.+0.0.0.0:([[:digit:]]+)->80.+/\1/g')
+
+            sed -r 's/APP_URL=.+(random)/$PORT/g' .env
+            
             else
                 echo $APP_URL
             fi

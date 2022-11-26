@@ -1,4 +1,9 @@
 #!/bin/bash
+if [ -f .env ];then
+    source .env
+    source .functions.sh
+fi
+
 if [[ "$1" = 'all' ]];then
     . ./all
     exit
@@ -10,4 +15,15 @@ if [[ "$1" = 'ports' ]];then
 fi
 
 echo "DotEnv Settings"
-cat .env|grep -vE '^#'
+if [ $DEFAULT ] && [ $DEFAULT = "random" ];then
+    TERM_STDOUT=$(docker-compose -p ${PROJECT} ps)
+    PORT=$(echo -e "$TERM_STDOUT"|grep "${PROJECT}-web-1"|sed -r 's/.+0.0.0.0:([[:digit:]]+)->80.+/\1/g')
+    #cat .env|sed -r '/^#/d'|sed -r "s/^(APP_URL=.+):random/\1:${PORT}/g"
+    if [ $PORT ];then
+        cat .env|sed -r '/^#/d'|sed -r "s/^APP_URL=(.+):random/APP_URL=\1:${PORT}/g"
+    else
+        cat .env|sed -r '/^#/d'   
+    fi
+else
+    cat .env|sed -r '/^#/d'   
+fi
