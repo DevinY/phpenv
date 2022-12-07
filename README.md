@@ -18,11 +18,9 @@ link
 
 第二步: 依自己的環境調整專案名稱及開啟的連接埠
 
-您可以加上正確的USER_ID及GROUP_ID，透別在Linux環境透別有用。
+您可以加上正確的USER_ID及GROUP_ID，特別在Linux環境很有用。
 
 預設容器會使用uid及gid 1000執行，nginx及php，依自己的環境可以調整正確的USER_ID及GROUP_ID。
-
-
 
 <pre>
 #SERVICES="mariadb"
@@ -36,6 +34,23 @@ SSH_PORT=2222
 DRIVE_PORT=2223
 USER_ID=1000
 GROUP_ID=1000
+</pre>
+
+例如:
+下方是我Synology NAS下的環境，在Linux的環境資料庫的目錄會建立失敗，
+請自行調整data目錄中資料夾權限。
+<pre>
+DotEnv Settings
+SERVICES="ssh_db mariadb_ssh redis "
+PROJECT=ccc
+APP_URL=http://127.0.0.1:1056
+FOLDER=/volume1/docker/ccc
+NETWORK_MOD=host
+HTTP_PORT=1056
+SSH_PORT=2256
+DB_PORT=3356
+USER_ID=1026
+GROUP_ID=100
 </pre>
 
 
