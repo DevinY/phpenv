@@ -72,7 +72,7 @@ function console() {
                 args+=" -f services/${SERVICE}.yml "
             fi
         done
-        if [ $@ = "ps" ]; then
+        if [[ "${@}" == "ps" ]]; then
             TERM_STDOUT=$(docker-compose -p ${PROJECT} ${args} $@)
             echo -e "$TERM_STDOUT"
             #echo URL
