@@ -11,6 +11,7 @@ services:
   image: ${PROJECT}_ssh
   ports:
     - ${SSH_PORT-2222}:22
+    - ${DB_PORT-127.0.0.1:3306}:3306
   volumes:
     - ./etc/php:/usr/local/etc/php/conf.d
     - ./etc/code-server:/home/dlaravel/.vscode-server
