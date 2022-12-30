@@ -1,0 +1,21 @@
+#=========== vscode Remote ssh =================
+version: '3.6'
+services:
+ ssh:
+  build:
+    context: ./dockerfiles
+    dockerfile: Dockerfile-ssh-7.4-${CPU-x86_64}
+    args:
+      USER_ID: ${USER_ID-1000}
+      GROUP_ID: ${GROUP_ID-1000}
+  image: ${PROJECT}_ssh
+  ports:
+    - ${SSH_PORT-2222}:22
+  volumes:
+    - ./etc/code-server:/home/dlaravel/.vscode-server
+    - ./authorized_keys:/home/dlaravel/.ssh/authorized_keys
+    - ${FOLDER-./project}:/var/www/html
+  networks:
+    - dlaravel_net
+networks:
+    dlaravel_net:
