@@ -1,0 +1,7 @@
+FROM haproxy
+
+USER root
+
+RUN apt update&&apt -y install certbot
+
+CMD ["/usr/local/sbin/haproxy", "-f","/etc/haproxy","-d"]
