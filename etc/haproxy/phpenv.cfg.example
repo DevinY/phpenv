@@ -17,6 +17,6 @@ backend SUBDOMAIN_server
    mode http
    fullconn   10000
    cookie SITEID insert indirect nocache
-   server SUBDOMAIN host.docker.internal:1080
+   server SUBDOMAIN host.docker.internal:1050
 
    
