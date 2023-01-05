@@ -11,7 +11,15 @@ do
     if [ $1 ];then
         SUBCMD=$1
     fi
-    PROJECT_FILE=$(grep PROJECT=${PROJECT} envs/*|cut -d: -f1)
+    echo $PROJECT
+    #Check Only one project
+    PROJECT_NUM=$(grep -E "PROJECT=${PROJECT}$" envs/*|wc -l)
+    if [ $PROJECT_NUM -gt 1 ]; then
+        grep PROJECT=${PROJECT} envs/*
+        echo "The smae Project name are found."
+        exit 1
+    fi
+    PROJECT_FILE=$(grep -E "PROJECT=${PROJECT}$" envs/*|cut -d: -f1)
     ln -sf ${PROJECT_FILE} .env
     echo "Project FILE: ${PROJECT_FILE}"
     ./console ${SUBCMD}
