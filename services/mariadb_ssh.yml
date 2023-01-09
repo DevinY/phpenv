@@ -9,5 +9,7 @@ services:
     - ./data/${PROJECT-default}:/var/lib/mysql
   environment:
     - MYSQL_ALLOW_EMPTY_PASSWORD= "yes"
+    - MYSQL_ROOT_HOST=127.0.0.1
     - TZ=Asia/Taipei
+  restart: unless-stopped
   network_mode: service:ssh

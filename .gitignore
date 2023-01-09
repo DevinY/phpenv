@@ -8,3 +8,4 @@ cert.key
 etc/cache
 v3.ext
 *.swp
+.DS_Store
