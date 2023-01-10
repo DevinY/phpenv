@@ -66,6 +66,8 @@ drive服務不提供PHP，主要可用於資料上傳，或是Laravel的Storage 
 
 第四步: 建立容器，僅需執行一次，除非您變動USER_ID或GROUP_ID時，才需重buidl。
 
+重要: 如果您是執行中的舊專案，請確認php版號一制，必免因PHP升級造成程式執行異常
+
 第一次啟動容器時，可透過./console build建立容器，預設的image名稱prefix為default，會依據您dot env中的PROJECT而變更。
 <pre>
 default_drive

@@ -18,6 +18,7 @@ services:
   volumes:
   - ${FOLDER-./project}:/var/www/html
   - ./etc:/etc/nginx/conf.d
+  restart: unless-stopped
   networks:
     - dlaravel_net
   
@@ -40,6 +41,7 @@ services:
     - TZ=Asia/Taipei
     - project=${HOST-localhost}
   command: ["sudo", "/usr/bin/supervisord"]
+  restart: unless-stopped
   networks:
     - dlaravel_net
 #=== top-level netowks key ======================

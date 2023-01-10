@@ -14,6 +14,7 @@ services:
     - ./etc/ssl:/etc/letsencrypt
   #-f <configuration file|dir>
   #command: /usr/local/sbin/haproxy -f /etc/haproxy -d
+  restart: unless-stopped
   networks:
     - dlaravel_net
 

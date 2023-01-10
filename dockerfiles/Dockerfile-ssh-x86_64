@@ -1,4 +1,4 @@
-From deviny/fpm:8.1.11-ssh
+From deviny/fpm:8.2.1-ssh
 ARG USER_ID
 ENV USER_ID ${USER_ID:-1000}
 
