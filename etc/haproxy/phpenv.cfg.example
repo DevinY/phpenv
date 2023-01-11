@@ -5,6 +5,7 @@ frontend phpenv
    option forwardfor header X-Real-IP
    http-request add-header X-Real-IP %[src]
    http-request add-header X-Forwarded-For %[src]
+   http-request add-header X-Forwarded-Proto https
 
    acl acme path_beg -i /.well-known/acme-challenge
    redirect scheme https code 301 if !{ ssl_fc } !acme
