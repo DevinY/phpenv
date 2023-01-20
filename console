@@ -61,7 +61,8 @@ fi
 
 #Default Workspace
 if [ "$1" = '' ];then
-    exec_bash php
+    exec_bash $(get_workspace)
+    exit
 fi
 
 #進入ssh容器

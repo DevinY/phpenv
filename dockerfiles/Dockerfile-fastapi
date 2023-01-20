@@ -1,0 +1,9 @@
+From python
+
+RUN pip install fastapi "uvicorn[standard]"
+
+EXPOSE 8000
+
+WORKDIR /app
+
+CMD ["/usr/local/bin/uvicorn","--host","0.0.0.0","--app-dir","/app","main:app","--reload"]

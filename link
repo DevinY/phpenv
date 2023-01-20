@@ -4,7 +4,7 @@
 NUM=$(ls -1 envs|wc -l)
 if [ $NUM -eq 0 ];then
     echo "#DEFAULT=random"> envs/default
-    echo '#SERVICES="mariadb"' >> envs/default
+    echo '#SERVICES="ssh"' >> envs/default
     echo "PROJECT=default" >> envs/default
     echo "APP_URL=http://127.0.0.1:1050" >> envs/default
     echo "FOLDER=.." >> envs/default

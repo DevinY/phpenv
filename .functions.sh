@@ -15,7 +15,15 @@ else
     exit
 fi
 
-function default(){
+function get_workspace(){
+    WORKSPACE=$(grep -Ei "^WORKSPACE" .env|cut -d= -f2)
+    if [ -z $WORKSPACE ];then
+        WORKSPACE="php"
+    fi
+    echo $WORKSPACE
+}
+
+function default_yml_file(){
     DEFAULT=$(grep -Ei "^DEFAULT" .env|cut -d= -f2)
     if [ -z $DEFAULT ];then
         DEFAULT="docker-compose"
@@ -28,7 +36,7 @@ function start {
     touch authorized_keys
     echo ${APP_URL}
     PROJECT=$1
-    args=" -f $(default).yml "
+    args=" -f $(default_yml_file).yml "
     for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
     do
         if [ -f "services/${SERVICE}.yml" ];then
@@ -42,7 +50,7 @@ function stop {
     touch authorized_keys
     echo ${APP_URL}
     PROJECT=$1
-    args=" -f $(default).yml "
+    args=" -f $(default_yml_file).yml "
     for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
     do
         if [ -f "services/${SERVICE}.yml" ];then
@@ -51,12 +59,17 @@ function stop {
     done
     docker-compose -p ${PROJECT} ${args} down --remove-orphans
 }
+
 function exec_bash {
-    echo "The \"$(grep -E 'PROJECT=.+$' .env|cut -d= -f2)\" project of the php container."
-    docker-compose  -p ${PROJECT} \
+    echo "Entering the \"$(grep -E 'PROJECT=.+$' .env|cut -d= -f2)\" project in the $1 container."
+    if [[ $1 = 'php' ]];then
+        docker-compose  -p ${PROJECT} \
         exec -w /var/www/html/$2 \
         -u dlaravel \
         $1  bash
+    else
+        docker-compose  -p ${PROJECT} exec $1  bash
+    fi
     exit
 }
 
@@ -65,8 +78,9 @@ function console() {
         source .env
         touch authorized_keys
         PROJECT=$(grep 'PROJECT' .env|cut -d= -f2)
-        args=" -f $(default).yml "
-        for SERVICE in $(grep -i "SERVICES" .env|cut -d= -f2|sed 's/"//g')
+        args=" -f $(default_yml_file).yml "
+        #add additional yml files
+        for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
         do
             if [ -f "services/${SERVICE}.yml" ];then
                 args+=" -f services/${SERVICE}.yml "

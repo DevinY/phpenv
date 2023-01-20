@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ -z $1 ];then
-   grep -E 'HTTP_PORT' envs/*|sed 's/=/ /g'|sort -k 2|sed 's/ /=/g'|grep -E '[[:digit:]]+$' --color
+   grep -E '_PORT' envs/*|sed 's/=/ /g'|sort -k 2|sed 's/ /=/g'|grep -E '[[:digit:]]+$' --color
    else
    grep -E "${1}" envs/*|sed 's/=/ /g'|sort -k 2|sed 's/ /=/g'|grep -E '[[:digit:]]+$' --color
 fi
