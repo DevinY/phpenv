@@ -1,9 +1,22 @@
-From python
+From python:3.10.9-slim-bullseye
+#From python
 
-RUN pip install fastapi "uvicorn[standard]"
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libgl1 \
+        libglib2.0-0 
+
+RUN python3 -m venv /opt/python
+
+RUN . /opt/python/bin/activate &&\
+      pip install --upgrade pip&&pip install fastapi "uvicorn[standard]" &&\
+      echo 'source /opt/python/bin/activate' >> ~/.bashrc
+
+#COPY requirements.txt /app/requirements.txt
+#RUN pip install -r requirements.txt 
+
+COPY bash_aliases /home/dlaravel/.bash_aliases
 
 EXPOSE 8000
 
 WORKDIR /app
-
-CMD ["/usr/local/bin/uvicorn","--host","0.0.0.0","--app-dir","/app","main:app","--reload"]
+CMD . /opt/python/bin/activate&&uvicorn --host 0.0.0.0 --app-dir /app main:app --reload
