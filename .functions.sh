@@ -61,14 +61,21 @@ function stop {
 }
 
 function exec_bash {
+    args=" -f $(default_yml_file).yml "
+    for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
+    do
+        if [ -f "services/${SERVICE}.yml" ];then
+            args+=" -f services/${SERVICE}.yml "
+        fi
+    done
     echo "Entering the \"$(grep -E 'PROJECT=.+$' .env|cut -d= -f2)\" project in the $1 container."
     if [[ $1 = 'php' ]];then
-        docker-compose  -p ${PROJECT} \
+        docker-compose  -p ${PROJECT} ${args}\
         exec -w /var/www/html/$2 \
         -u dlaravel \
         $1  bash
     else
-        docker-compose  -p ${PROJECT} exec $1  bash
+        docker-compose  -p ${PROJECT} ${args} exec $1  bash
     fi
     exit
 }
