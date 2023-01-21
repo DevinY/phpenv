@@ -77,18 +77,14 @@ fi
 
 #檢測是否為.env名稱，如果是就進入
 if [ "$1" ];then
-    MATCH=$(ls envs/$1* 2>/dev/null|wc -l)
-    if [ ${MATCH} -eq 1 ];then
-        ls envs/$1* >/dev/null
-        if [ $? -eq 0 ];then
-            ENVFILE=$(ls envs/$1*)
+    if [ -f envs/$1 ];then
             #重新連結並進入容器
-            ln -sf ${ENVFILE} .env
+            ln -sf envs/${1} .env
+            PROJECT=$(get_project)
             echo "Link to Project of "${PROJECT}
             shift 1
             echo "Entering service $(get_workspace) as workspace"
             console exec $(get_workspace) bash
-        fi
         exit
     fi
 fi

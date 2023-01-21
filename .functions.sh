@@ -15,6 +15,15 @@ else
     exit
 fi
 
+function get_project(){
+    PROJECT=$(grep -Ei "^PROJECT=" .env|cut -d= -f2)
+    if [ -z $PROJECT ];then
+        echo "PROJECT variable not found in env file"
+        exit 1
+    fi
+    echo $PROJECT
+}
+
 function get_workspace(){
     WORKSPACE=$(grep -Ei "^WORKSPACE" .env|cut -d= -f2)
     if [ -z $WORKSPACE ];then
@@ -73,7 +82,7 @@ function exec_bash {
         docker-compose  -p ${PROJECT} ${args}\
         exec -w /var/www/html/$2 \
         -u dlaravel \
-        $1  bash
+        $1 bash
     else
         docker-compose  -p ${PROJECT} ${args} exec $1  bash
     fi
