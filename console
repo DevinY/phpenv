@@ -84,9 +84,10 @@ if [ "$1" ];then
             ENVFILE=$(ls envs/$1*)
             #重新連結並進入容器
             ln -sf ${ENVFILE} .env
-            grep "PROJECT" .env
+            echo "Link to Project of "${PROJECT}
             shift 1
-            console exec php bash
+            echo "Entering service $(get_workspace) as workspace"
+            console exec $(get_workspace) bash
         fi
         exit
     fi
