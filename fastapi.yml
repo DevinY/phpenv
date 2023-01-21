@@ -11,7 +11,7 @@ services:
     - PHTONENV=/app
   ports:
     - ${FASTAPI_PORT-8000}:8000
-  #command: uvicorn main:app --host 0.0.0.0 --reload
+  #command: bash -c ". /opt/python/bin/activate&&uvicorn --host 0.0.0.0 --app-dir /app main:app --reload"
   networks:
     - dlaravel_net
 
