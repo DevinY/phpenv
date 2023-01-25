@@ -1,0 +1,11 @@
+version: '3.6'
+services:
+ fastapi:
+  image: openspeedtest/latest
+  ports:
+    - ${HTTP_PORT-3000}:3000
+  restart: unless-stopped
+  networks:
+    - dlaravel_net
+networks:
+    dlaravel_net:
