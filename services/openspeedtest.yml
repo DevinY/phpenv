@@ -7,6 +7,5 @@ services:
   restart: unless-stopped
   networks:
     - dlaravel_net
-  restart: unless-stopped
 networks:
     dlaravel_net:
