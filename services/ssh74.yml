@@ -15,6 +15,7 @@ services:
     - ./etc/code-server:/home/dlaravel/.vscode-server
     - ./authorized_keys:/home/dlaravel/.ssh/authorized_keys
     - ${FOLDER-./project}:/var/www/html
+  restart: unless-stopped
   networks:
     - dlaravel_net
 networks:

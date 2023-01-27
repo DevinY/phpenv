@@ -9,6 +9,6 @@ services:
   networks:
     - dlaravel_net
   command: redis-server --requirepass You_Should_Change_This_Password
-
+  restart: unless-stopped
 networks:
     dlaravel_net:

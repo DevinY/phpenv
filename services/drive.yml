@@ -12,6 +12,7 @@ services:
     - ${DRIVE_PORT-2223}:22
   volumes:
     - ${FOLDER-./project}:/var/www/html
+  restart: unless-stopped
   networks:
     - dlaravel_net
 
