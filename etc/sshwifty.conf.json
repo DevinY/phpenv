@@ -1,0 +1,37 @@
+{
+  "HostName": "",
+  "SharedKey": "WEB_ACCESS_PASSWORD",
+  "DialTimeout": 10,
+  "Servers": [
+     {
+      "ListenInterface": "0.0.0.0",
+      "ListenPort": 8183,
+      "InitialTimeout": 3,
+      "ReadTimeout": 60,
+      "WriteTimeout": 60,
+      "HeartbeatTimeout": 20,
+      "ReadDelay": 10,
+      "WriteDelay": 10,
+      "TLSCertificateFile": "/tmp/cert",
+      "TLSCertificateKeyFile": "/tmp/certkey"
+    },
+    {
+      "ListenInterface": "0.0.0.0",
+      "ListenPort": 8182,
+      "InitialTimeout": 3
+    }
+  ],
+  "Presets": [
+    {
+      "Title": "DLaravel SSH",
+      "Type": "SSH",
+      "Host": "ssh",
+      "Meta": {
+        "User": "dlaravel",
+        "Private Key": "file:///home/sshwifty/.ssh/id_ed25519",
+        "Authentication": "Private Key"
+      }
+    }
+  ],
+  "OnlyAllowPresetRemotes": false
+}

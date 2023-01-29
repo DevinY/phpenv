@@ -1,0 +1,18 @@
+version: '3.6'
+services:
+ sshwifty:
+  build:
+    context: ./dockerfiles
+    dockerfile: Dockerfile-sshwifty
+  image: ${PROJECT}_sshwifty
+  ports:
+    - ${SSHWIFTY_HTTP_PORT-8182}:8182
+    - ${SSHWIFTY_HTTPS_PORT-8183}:8183
+  volumes:
+    - ./etc/sshwifty.conf.json:/sshwifty.conf.json
+  networks:
+    - dlaravel_net
+  restart: unless-stopped
+
+networks:
+    dlaravel_net:
