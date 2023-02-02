@@ -11,9 +11,9 @@ Docker php 容器化專案執行環境
 
 第一步: 執行link即可產生預設的.env設定檔。
 
-<code>
-link
-</code>
+<pre>
+./link
+</pre>
 
 第二步: 依自己的環境調整專案名稱及開啟的連接埠
 
@@ -79,7 +79,7 @@ default_php
 
 指令說明
 <pre>
-
+./link 選擇環境或產生初始化環境變數範本
 ./start 啟用
 ./restart 停用再啟用容器
 ./stop 停用
