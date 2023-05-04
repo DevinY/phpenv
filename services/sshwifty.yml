@@ -1,10 +1,11 @@
-version: '3.6'
+version: '3.7'
 services:
  sshwifty:
   build:
     context: ./dockerfiles
     dockerfile: Dockerfile-sshwifty
   image: ${PROJECT}_sshwifty
+  init: true
   ports:
     - ${SSHWIFTY_HTTP_PORT-8182}:8182
     - ${SSHWIFTY_HTTPS_PORT-8183}:8183

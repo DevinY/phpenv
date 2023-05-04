@@ -1,5 +1,5 @@
 #=========== vscode Remote ssh =================
-version: '3.6'
+version: '3.7'
 services:
  ssh:
   build:
@@ -9,6 +9,7 @@ services:
       USER_ID: ${USER_ID-1000}
       GROUP_ID: ${GROUP_ID-1000}
   image: ${PROJECT}_ssh
+  init: true
   ports:
     - ${SSH_PORT-2222}:22
     - ${DB_PORT-127.0.0.1:3306}:3306
