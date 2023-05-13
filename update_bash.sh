@@ -1,5 +1,5 @@
 #!/bin/bash
-BASHFILES="start stop restart reload info link all ports artisan console .functions.sh"
+BASHFILES="start stop stats restart reload info link all ports artisan console .functions.sh update_bash.sh"
 function update {
     for f in $BASHFILES
     do
