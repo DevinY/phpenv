@@ -25,15 +25,14 @@ if [[ "$1" = 'commit' ]];then
         NAMES_NUMBER=$(docker ps -f name=$2|grep -vE '^CONTAINER'|awk '{print $1,$NF}'|wc -l)
         if [ $NAMES_NUMBER -eq 1 ];then
             CONTAINER_NAME=$(docker ps -f name=$2|grep -vE '^CONTAINER'|awk '{print $NF}')
-            CONTAINER_ID=$(docker ps -f name=${CONTAINER_NAME}|grep -vE '^CONTAINER'|awk '{print $1}')
-            IMAGE_NAME=$(docker ps -f name=${CONTAINER_NAME}|grep -vE '^CONTAINER'|awk '{print $2}')
-            docker images $IMAGE_NAME
-            IMAGE_ID=$(docker inspect $CONTAINER_ID|grep Image|grep sha256|sed -r 's/".+sha256:(.+)",$/\1/g'|sed 's/^ *//g'|cut -c 1-12)
-            echo "docker commit $(docker ps|grep $CONTAINER_NAME|awk '{print $1}') $IMAGE_ID"
+            COMMIT_ARG=$(docker ps|grep $CONTAINER_NAME|awk '{print $1,$2}')
+            echo $COMMIT_ARG
+            echo "docker commit $COMMIT_ARG"
+            IMAGE_NAME=$(docker ps -f name=$2|grep -vE '^CONTAINER'|awk '{print $2}')
             echo "Do you wish to run above command to change for this image ${IMAGE_NAME}?"
             select yn in "Yes" "No"; do
                 case $yn in
-                    Yes ) docker commit $(docker ps|grep $CONTAINER_NAME|awk '{print $1}') $IMAGE_ID; break;;
+                    Yes ) docker commit $COMMIT_ARG; break;;
                     No ) exit;;
                 esac
             done
@@ -92,6 +91,18 @@ fi
 if [ "$1" = 'restart' ];then
     shift 1
     console restart $@
+    exit
+fi
+
+if [ "$1" = 'down' ];then
+    shift 1
+    console down $@
+    exit
+fi
+
+if [ "$1" = 'up' ];then
+    shift 1
+    console up $@
     exit
 fi
 
