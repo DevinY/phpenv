@@ -8,7 +8,7 @@ fi
 
 if [ -f .env ];then
     CURRENT_PROJECT=$(grep "PROJECT" .env|cut -d= -f2)
-    CURRENT_PROJECT_FILE=$(grep PROJECT=${CURRENT_PROJECT} envs/*|cut -d: -f1)
+    CURRENT_PROJECT_FILE="envs/$(ls -l .env|cut -d/ -f2)"
 else
     echo "No .env file are linked."
     echo "Issue ./link command  to create one."

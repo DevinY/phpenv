@@ -4,8 +4,23 @@ if [ -f .env ];then
     source .functions.sh
 fi
 
+if [[ "$1" = "help" ]];then
+    echo "Usage: ./console.sh [all|ports|help|list|<project>]"
+    echo "  all: show all projects running status"
+    echo "  list: show all projects"
+    echo "  ports: show all ports"
+    echo "  help: show this help"
+    exit
+fi
+
+if [[ "$1" = 'list' ]];then
+    echo "List of projects:"
+    cd envs&&ls *
+    exit 0
+fi
+
 if [[ "$1" = 'all' ]];then
-    . ./all
+    ./all
     exit
 fi
 
@@ -14,16 +29,22 @@ if [[ "$1" = 'ports' ]];then
     exit
 fi
 
-echo "DotEnv Settings"
+if [[ "$1" != "" ]];then
+    ENVFILE="envs/$1"
+else
+    ENVFILE=".env"
+fi
+
+
 if [ $DEFAULT ] && [ $DEFAULT = "random" ];then
     TERM_STDOUT=$(docker-compose -p ${PROJECT} ps)
     PORT=$(echo -e "$TERM_STDOUT"|grep "${PROJECT}-web-1"|sed -r 's/.+0.0.0.0:([[:digit:]]+)->80.+/\1/g')
     #cat .env|sed -r '/^#/d'|sed -r "s/^(APP_URL=.+):random/\1:${PORT}/g"
     if [ $PORT ];then
-        cat .env|sed -r '/^#/d'|sed -r "s/^APP_URL=(.+):random/APP_URL=\1:${PORT}/g"
+        cat ${ENVFILE}|sed -r '/^#/d'|sed -r "s/^APP_URL=(.+):random/APP_URL=\1:${PORT}/g"
     else
-        cat .env|sed -r '/^#/d'   
+        cat ${ENVFILE}|sed -r '/^#/d'   
     fi
 else
-    cat .env|sed -r '/^#/d'   
+    cat ${ENVFILE}|sed -r '/^#/d'   
 fi

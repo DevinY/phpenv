@@ -19,6 +19,16 @@ if [[ "$1" = 'info' && "$2" = 'ports' ]];then
     exit
 fi
 
+if [[ "$1" = 'help' ]];then
+    echo "Usage: ./console.sh [all|info|start|stop|link|reload|<project>]"
+    echo "  all: show all projects running status"
+    echo "  info: show .env file"
+    echo "  start: start .env project"
+    echo "  stop: stop .env project"
+    echo "  help: ./console.sh"
+    exit;
+fi
+
 if [[ "$1" = 'all' ]];then
     shift 1
     . ./all
@@ -26,25 +36,26 @@ if [[ "$1" = 'all' ]];then
 fi
 
 if [ "$1" = 'info' ];then
-    . ./info
+    shift 1
+    ./info
     exit
 fi
 
 if [ "$1" = 'stop' ];then
     shift 1
-    . ./stop $2
+    ./stop $2
     exit
 fi
 
 if [ "$1" = 'start' ];then
     shift 1
-    . ./start
+    ./start
     exit
 fi
 
 if [ "$1" = 'link' ];then
     shift 1
-    . ./link
+    ./link
     exit
 fi
 #reload nginx
@@ -89,4 +100,5 @@ if [ "$1" ];then
     fi
 fi
 echo $CPU
+echo Project: $(ls -l .env|cut -d/ -f 2)
 console $@
