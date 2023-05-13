@@ -8,6 +8,7 @@ services:
       uid: ${USER_ID-1000}
       gid: ${GROUP_ID-1000}
   image: ${PROJECT}_drive
+  init: true
   ports:
     - ${DRIVE_PORT-2223}:22
   volumes:
