@@ -78,17 +78,20 @@ if [ "$1" = 'info' ];then
 fi
 
 if [ "$1" = 'stop' ];then
-    docker-compose -p ${PROJECT} ${args} $@
+    shift 1
+    console stop $@
     exit
 fi
 
 if [ "$1" = 'start' ];then
-    docker-compose -p ${PROJECT} ${args} $@
+    shift 1
+    console start $@
     exit
 fi
 
 if [ "$1" = 'restart' ];then
-    docker-compose -p ${PROJECT} ${args} $@
+    shift 1
+    console restart $@
     exit
 fi
 
