@@ -46,18 +46,21 @@ if [[ "$1" = 'commit' ]];then
         fi
         exit
     else
+        console ps
+        echo "You have a running container, please select one to commit."
         echo "./console commit <Name>"
     exit
     fi
 fi
 
 if [[ "$1" = 'help' ]];then
-    echo "Usage: ./console.sh [all|info|start|stop|link|reload|commit|<project>]"
+    echo "Usage: ./console.sh [all|info|start|stop|link|reload|commit|drive<project>]"
     echo "  all: show all projects running status"
     echo "  info: show .env file"
     echo "  start: start .env project"
     echo "  stop: stop .env project"
     echo "  commit: commit image for running container"
+    echo "  drive: run bash for drive.yml defualt service name"
     echo "  help: ./console.sh"
     exit;
 fi
@@ -75,14 +78,17 @@ if [ "$1" = 'info' ];then
 fi
 
 if [ "$1" = 'stop' ];then
-    shift 1
-    ./stop $2
+    docker-compose -p ${PROJECT} ${args} $@
     exit
 fi
 
 if [ "$1" = 'start' ];then
-    shift 1
-    ./start
+    docker-compose -p ${PROJECT} ${args} $@
+    exit
+fi
+
+if [ "$1" = 'restart' ];then
+    docker-compose -p ${PROJECT} ${args} $@
     exit
 fi
 
