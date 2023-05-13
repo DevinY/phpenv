@@ -37,14 +37,13 @@ GROUP_ID=1000
 
 例如:
 下方是我Synology NAS下的環境，在Linux的環境資料庫的目錄會建立失敗，
-請自行調整data目錄中資料夾權限。
+請自行調整data目錄中資料夾權限。 APP_URL主要用於識別參考用
 <pre>
 DotEnv Settings
 SERVICES="ssh_db mariadb_ssh redis "
 PROJECT=ccc
-APP_URL=http://127.0.0.1:1056
+APP_URL=https://www.ccc.tc
 FOLDER=/volume1/docker/ccc
-NETWORK_MOD=host
 HTTP_PORT=1056
 SSH_PORT=2256
 DB_PORT=3356
@@ -80,29 +79,37 @@ default_php
 指令說明
 <pre>
 ./link 選擇環境或產生初始化環境變數範本
+./link <project> 直接連結到已知的Project
 ./start 啟用
 ./restart 停用再啟用容器
 ./stop 停用
 ./stop [project_name] 停用啟動中，非.env設定中的專案服務。
 ./relaod 重整nginx設定
 ./info 顯示.env資訊
+./info help 查看info更多的子命令
+./stats 查看所有envs中的Project容器運作狀態
 ./syn_auth.sh 同步自己的公鑰到authorized_keys中，用於ssh驗證
 ./gen_ssl_for_test.sh [name] 建立自簽憑證並自動匯入MacOs鑰匙圈，name後方會自動追加.test
 ./del_know_host.sh [interger] 在MacOS環境用來快速刪除~/.ssh/known_hosts特定行號
 ./artisan 用來執行php容器服務的artisan指令
 ./console 串接docker原生的命令，自動依.env代入project名稱，另外提供本專案的一些子命令。
+./console help 查看phpenv提供的子命令說明
+</pre>
 
-#多env檔(進階操作)
+### 多env檔(進階操作)
+</pre>
 ./all 查看所有envs中的PROJECT服務啟動狀態
 ./all start envs資料夾中的所有env檔，env檔的PROJECT名稱及啟動的PORT不可重覆，會自重連結到每個.env檔進行啟動。
 ./all stop  停用envs資料夾的所有服務，會自重連結到每個.env檔進行停止
-
 </pre>
 
 範例:
+查看./console 幫助
+<pre>
+./console help
+</pre>
 
 容器啟動時，預設進入php容器中
-
 <pre>
 ./console
 </pre>
@@ -118,7 +125,6 @@ default_php
 ./console artisan -V
 </pre>
 
-
 Drive服務密碼變更，可用於Laravel Storage Filesystem的SFTP
 drive容器為隨機密碼，要登入我們需要重新設定密碼，指令如下
 
@@ -128,18 +134,21 @@ drive容器為隨機密碼，要登入我們需要重新設定密碼，指令如
 
 設更密碼後，我們需要重新commit我們自己的image，以便下次重啟時，密碼不會被還原。
 
-
-
-如果您不熟悉如何取得drive服務的container id，可以透過如下指令取得啟動中的drive容器id。
-
+可以輕易的進行容器image的變更保存，例如安裝新的套件。
 <pre>
-
-docker ps|grep $(./console ps drive|tail -n1|awk '{print $1}')
-
+./console commit <project>_drive_1
+</pre>
+可以輸入下方指令查看啟動中的容器名稱進行指定
+<pre>
+./console commit
 </pre>
 
-類似下方這樣，commit drive的image
+### 更新與修正
+
+僅更新phpenv主要的bash，bug修正及取得最新的功能
+
+運作中的環境，不適合抓取完整的yml設定檔時，特過這個指令僅更新主要的bash檔案。
 <pre>
-docker commit fbaaaea6b8fd [專案名稱]_drive
+./update_bash.sh
 </pre>
 
