@@ -53,14 +53,14 @@ if [[ "$1" = 'commit' ]];then
 fi
 
 if [[ "$1" = 'help' ]];then
-    echo "Usage: ./console.sh [all|info|start|stop|link|reload|commit|drive|<project>]"
+    echo "Usage: $0 [all|info|start|stop|link|reload|commit|drive|<project>]"
     echo "  all: show all projects running status"
     echo "  info: show .env file"
     echo "  start: start .env project"
     echo "  stop: stop .env project"
     echo "  commit: commit image for running container"
     echo "  drive: run bash for drive.yml defualt service name"
-    echo "  help: ./console.sh"
+    echo "  help: $0"
     exit;
 fi
 

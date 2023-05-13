@@ -5,7 +5,7 @@ if [ -f .env ];then
 fi
 
 if [[ "$1" = "help" ]];then
-    echo "Usage: ./console.sh [all|ports|help|list|<project>]"
+    echo "Usage: $0 [all|ports|help|list|<project>]"
     echo "  all: show all projects running status"
     echo "  list: show all projects"
     echo "  ports: show all ports"
