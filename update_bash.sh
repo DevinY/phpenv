@@ -5,6 +5,7 @@ function update {
     do
     echo "Updating $f"
     curl https://raw.githubusercontent.com/DevinY/phpenv/main/$f -so $f
+    chmod +x $f
     done
 }
 echo Files: "$BASHFILES" will be update.
