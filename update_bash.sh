@@ -4,7 +4,7 @@ function update {
     for f in $BASHFILES
     do
     echo "Updating $f"
-    curl https://raw.githubusercontent.com/DevinY/phpenv/main/$f -so $f
+    curl -H 'Cache-Control: no-cache, no-store' https://raw.githubusercontent.com/DevinY/phpenv/main/$f -so $f
     chmod +x $f
     done
 }
