@@ -19,12 +19,45 @@ if [[ "$1" = 'info' && "$2" = 'ports' ]];then
     exit
 fi
 
+if [[ "$1" = 'commit' ]];then
+    if [[ "$2" != "" ]];then
+        docker ps -f name=$2|grep -vE '^CONTAINER'|awk '{print "CONTAINER ID:"$1," IMAGE:"$2," NAME:" $NF}'
+        NAMES_NUMBER=$(docker ps -f name=$2|grep -vE '^CONTAINER'|awk '{print $1,$NF}'|wc -l)
+        if [ $NAMES_NUMBER -eq 1 ];then
+            CONTAINER_NAME=$(docker ps -f name=$2|grep -vE '^CONTAINER'|awk '{print $NF}')
+            CONTAINER_ID=$(docker ps -f name=${CONTAINER_NAME}|grep -vE '^CONTAINER'|awk '{print $1}')
+            IMAGE_NAME=$(docker ps -f name=${CONTAINER_NAME}|grep -vE '^CONTAINER'|awk '{print $2}')
+            docker images $IMAGE_NAME
+            IMAGE_ID=$(docker inspect $CONTAINER_ID|grep Image|grep sha256|sed -r 's/".+sha256:(.+)",$/\1/g'|sed 's/^ *//g'|cut -c 1-12)
+            echo "docker commit $(docker ps|grep $CONTAINER_NAME|awk '{print $1}') $IMAGE_ID"
+            echo "Do you wish to run above command to change for this image ${IMAGE_NAME}?"
+            select yn in "Yes" "No"; do
+                case $yn in
+                    Yes ) docker commit $(docker ps|grep $CONTAINER_NAME|awk '{print $1}') $IMAGE_ID; break;;
+                    No ) exit;;
+                esac
+            done
+            exit
+        fi
+        if [ $NAMES_NUMBER -gt 1 ];then
+            echo "Unable commit by multiple names."
+            else
+            echo "container name not found."
+        fi
+        exit
+    else
+        echo "./console commit <Name>"
+    exit
+    fi
+fi
+
 if [[ "$1" = 'help' ]];then
-    echo "Usage: ./console.sh [all|info|start|stop|link|reload|<project>]"
+    echo "Usage: ./console.sh [all|info|start|stop|link|reload|commit|<project>]"
     echo "  all: show all projects running status"
     echo "  info: show .env file"
     echo "  start: start .env project"
     echo "  stop: stop .env project"
+    echo "  commit: commit image for running container"
     echo "  help: ./console.sh"
     exit;
 fi
