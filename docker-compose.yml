@@ -31,6 +31,8 @@ services:
       USER_ID: ${USER_ID-1000}
       GROUP_ID: ${GROUP_ID-1000}
   image: ${PROJECT}_php
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
   volumes:
     - ./etc/php:/usr/local/etc/php/conf.d
     - ${FOLDER-./project}:/var/www/html
