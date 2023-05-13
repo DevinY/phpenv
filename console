@@ -53,11 +53,12 @@ if [[ "$1" = 'commit' ]];then
 fi
 
 if [[ "$1" = 'help' ]];then
-    echo "Usage: $0 [all|info|start|stop|link|reload|commit|drive|<project>]"
+    echo "Usage: $0 [all|info|start|stop|link|reload|commit|drive|stats|<project>]"
     echo "  all: show all projects running status"
     echo "  info: show .env file"
     echo "  start: start .env project"
     echo "  stop: stop .env project"
+    echo "  stats: view all projects stats"
     echo "  commit: commit image for running container"
     echo "  drive: run bash for drive.yml defualt service name"
     echo "  help: $0"
@@ -103,6 +104,12 @@ fi
 if [ "$1" = 'up' ];then
     shift 1
     console up $@
+    exit
+fi
+
+if [ "$1" = 'stats' ];then
+    shift 1
+    ./stats
     exit
 fi
 
