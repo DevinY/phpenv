@@ -21,6 +21,17 @@ if [ $NUM -eq 0 ];then
     exit
 fi
 
+if [[ $1 != "" ]];then
+    if [ ! -f envs/$1 ];then
+        echo "envs/$1 not found, unable to link."
+        exit
+    fi
+    ln -sf envs/$1 .env
+    echo Link to $(ls -l .env|awk '{print $NF}')
+    ./info
+    exit;
+fi
+
 
 echo "Type number to select your project environment:"
 array="$(cd envs&&ls *|sort)"
