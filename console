@@ -149,10 +149,7 @@ fi
 #Check Project Image
 if [ "$1" = 'build' ];then
     if [ $? -eq 0 ];then
-        #SERVICES=$(./console images |sed 1,2d|awk '{printf("%s\n",$1);}')
-        shift 2
         args=$(get_args)
-        #docker-compose -p ${PROJECT} ${args} ${args} images
         IMAGE_IDS=$(docker-compose -p ${PROJECT} ${args} ${args} images|sed 1d|awk '{print $1}')
         FOUND=0
         for i in ${IMAGE_IDS} 
@@ -191,4 +188,5 @@ fi
 echo $CPU
 #echo Project: $(ls -l .env|cut -d/ -f 2)
 echo Project: $PROJECT
+
 console $@
