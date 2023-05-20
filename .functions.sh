@@ -24,6 +24,18 @@ function get_project(){
     echo $PROJECT
 }
 
+function get_args(){
+        args=" -f $(default_yml_file).yml "
+        #add additional yml files
+        for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
+        do
+            if [ -f "services/${SERVICE}.yml" ];then
+                args+=" -f services/${SERVICE}.yml "
+            fi
+        done
+        echo $args
+}
+
 function get_workspace(){
     WORKSPACE=$(grep -Ei "^WORKSPACE" .env|cut -d= -f2)
     if [ -z $WORKSPACE ];then
@@ -93,15 +105,8 @@ function console() {
     if [ -f .env ];then
         source .env
         touch authorized_keys
-        PROJECT=$(grep 'PROJECT' .env|cut -d= -f2)
-        args=" -f $(default_yml_file).yml "
-        #add additional yml files
-        for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
-        do
-            if [ -f "services/${SERVICE}.yml" ];then
-                args+=" -f services/${SERVICE}.yml "
-            fi
-        done
+        PROJECT=$(get_project)
+        args=$(get_args)
         if [[ "${@}" == "ps" ]]; then
             TERM_STDOUT=$(docker-compose -p ${PROJECT} ${args} $@)
             echo -e "$TERM_STDOUT"
