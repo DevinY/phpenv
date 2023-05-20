@@ -154,7 +154,6 @@ if [ "$1" = 'build' ];then
         args=$(get_args)
         #docker-compose -p ${PROJECT} ${args} ${args} images
         IMAGE_IDS=$(docker-compose -p ${PROJECT} ${args} ${args} images|sed 1d|awk '{print $1}')
-        echo $IMAGE_IDS
         FOUND=0
         for i in ${IMAGE_IDS} 
         do
