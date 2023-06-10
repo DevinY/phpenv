@@ -1,4 +1,4 @@
-From deviny/fpm:8.2.6-ssh
+From deviny/fpm:8.2.6
 ARG USER_ID
 ENV USER_ID ${USER_ID:-1000}
 
@@ -6,6 +6,12 @@ ARG GROUP_ID
 ENV GROUP_ID ${GROUP_ID:-1000}
 
 USER root
+
+RUN apt-get install -y locales redis-tools openssh-server git pwgen
+RUN mkdir -p /var/run/sshd /home/dlaravel/.ssh
+
+RUN touch /home/dlaravel/.ssh/authorized_keys
+
 RUN sed -i "s/dlaravel:x:1000/dlaravel:x:${GROUP_ID}/" /etc/group
 RUN usermod -u ${USER_ID} -g ${GROUP_ID} dlaravel
 RUN chown -R ${USER_ID} /home/dlaravel
@@ -15,19 +21,28 @@ RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel/.ssh/authorized_keys
 COPY bash_aliases /home/dlaravel/.bash_aliases
 RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel/.bash_aliases
 
-RUN apt-get install -y locales redis-tools
+
+RUN sed -ri 's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+      sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
+      sed -ri 's/#AuthorizedKeysFile/AuthorizedKeysFile/g' /etc/ssh/sshd_config && \
+      sed -ri 's/#PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
+
 RUN echo "Asia/Taipei" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata && \
     sed -i -e 's/# zh_TW.UTF-8 UTF-8/zh_TW.UTF-8 UTF-8/' /etc/locale.gen && \
     echo 'LANG="zh_TW.UTF-8"'>/etc/default/locale && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=zh_TW.UTF-8
+
+RUN ssh-keygen -A
+
 RUN echo "ExposeAuthInfo yes" >> /etc/ssh/sshd_config
 
-RUN wget https://nodejs.org/dist/v18.12.1/node-v18.12.1-linux-arm64.tar.xz
-RUN tar -xJf node-v18.12.1-linux-arm64.tar.xz && \
-	rm node-v18.12.1-linux-arm64.tar.xz && \
-	mv node-v18.12.1-linux-arm64 /usr/local/node && \
+ARG NODE_VERSION=18.16.0
+RUN wget https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-arm64.tar.xz
+RUN tar -xJf node-v$NODE_VERSION-linux-arm64.tar.xz && \
+	rm node-v$NODE_VERSION-linux-arm64.tar.xz && \
+	mv node-v$NODE_VERSION-linux-arm64 /usr/local/node && \
 	echo 'export PATH=/usr/local/node/bin:$PATH' >> /etc/bash.bashrc
 
 # Link /var/www/html to home director
@@ -38,3 +53,5 @@ ENV LANG zh_TW.UTF-8
 ENV LANGUAGE zh_TW.UTF-8
 ENV LC_ALL zh_TW.UTF-8
 WORKDIR /var/www/html
+
+CMD ["sudo","sh","-c","/usr/sbin/sshd -D&php-fpm"]

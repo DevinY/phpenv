@@ -149,7 +149,8 @@ fi
 if [ "$1" = 'build' ];then
     if [ $? -eq 0 ];then
         args=$(get_args)
-        IMAGE_IDS=$(docker-compose -p ${PROJECT} ${args} ${args} images|sed 1d|awk '{print $1}')
+        #echo "docker-compose -p ${PROJECT} ${args} build --no-cache"
+        IMAGE_IDS=$(docker-compose -p ${PROJECT} ${args} images|sed 1d|awk '{print $1}')
         FOUND=0
         for i in ${IMAGE_IDS} 
         do
@@ -159,7 +160,7 @@ if [ "$1" = 'build' ];then
             FOUND=1
         done
         if [ $FOUND -eq 1 ];then
-            docker-compose -p ${PROJECT} ${args} ${args} images|sed 1d
+            docker-compose -p ${PROJECT} ${args} images|sed 1d
             echo
             read -p "Press (\"y\") to build, or any other key to quit:" -n 1 -r
             echo    # (optional) move to a new line
