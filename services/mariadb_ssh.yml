@@ -11,5 +11,7 @@ services:
     - MYSQL_ALLOW_EMPTY_PASSWORD= "yes"
     - MYSQL_ROOT_HOST=127.0.0.1
     - TZ=Asia/Taipei
-  restart: unless-stopped
+  restart: "always"
+  depends_on:
+    - ssh
   network_mode: service:ssh
