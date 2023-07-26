@@ -15,6 +15,7 @@ RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel/.ssh/authorized_keys
 COPY bash_aliases /home/dlaravel/.bash_aliases
 RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel/.bash_aliases
 
+RUN RUN apt-get -y update
 RUN apt-get install -y locales redis-tools
 RUN echo "Asia/Taipei" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata && \
