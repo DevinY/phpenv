@@ -160,16 +160,22 @@ if [ "$1" = 'build' ];then
             FOUND=1
         done
         if [ $FOUND -eq 1 ];then
-            docker-compose -p ${PROJECT} ${args} images|sed 1d
-            echo
-            read -p "Press (\"y\") to build, or any other key to quit:" -n 1 -r
-            echo    # (optional) move to a new line
-            if [[ ! $REPLY =~ ^[Yy]$ ]]
-            then
-                exit;
-            fi
+                docker-compose -p ${PROJECT} ${args} images|sed 1d
+                echo
+                read -p "Press (\"y\") to build, or any other key to quit:" -n 1 -r
+                echo    # (optional) move to a new line
+                if [[ ! $REPLY =~ ^[Yy]$ ]]
+                then
+                    exit;
+                fi
+                docker-compose -p ${PROJECT} ${args} $1 $2
+                exit
+            else
+                docker-compose -p ${PROJECT} ${args} $1 $2
+                exit
         fi
     fi
+
 fi
 
 #檢測是否為.env名稱，如果是就進入

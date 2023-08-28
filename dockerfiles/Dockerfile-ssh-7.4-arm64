@@ -6,6 +6,9 @@ ARG GROUP_ID
 ENV GROUP_ID ${GROUP_ID:-1000}
 
 USER root
+
+RUN apt-get -y update
+
 RUN sed -i "s/dlaravel:x:1000/dlaravel:x:${GROUP_ID}/" /etc/group
 RUN usermod -u ${USER_ID} -g ${GROUP_ID} dlaravel
 RUN chown -R ${USER_ID} /home/dlaravel
@@ -15,7 +18,6 @@ RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel/.ssh/authorized_keys
 COPY bash_aliases /home/dlaravel/.bash_aliases
 RUN chown ${USER_ID}:${GROUP_ID} /home/dlaravel/.bash_aliases
 
-RUN RUN apt-get -y update
 RUN apt-get install -y locales redis-tools
 RUN echo "Asia/Taipei" > /etc/timezone && \
     dpkg-reconfigure -f noninteractive tzdata && \
