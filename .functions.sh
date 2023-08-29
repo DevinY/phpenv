@@ -95,6 +95,10 @@ function exec_bash {
         exec -w /var/www/html/$2 \
         -u dlaravel \
         $1 bash
+        if [ $? -eq 1 ];then
+            echo "docker run --rm -v $(readlink -f ${FOLDER}/):/var/www/html -ti $(grep -E 'PROJECT=.+$' .env|cut -d= -f2)_$1 bash"
+            docker run --rm -v $(readlink -f ${FOLDER}/):/var/www/html -ti $(grep -E 'PROJECT=.+$' .env|cut -d= -f2)_$1 bash
+        fi
     else
         docker-compose  -p ${PROJECT} ${args} exec $1  bash
     fi
