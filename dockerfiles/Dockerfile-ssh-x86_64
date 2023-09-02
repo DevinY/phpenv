@@ -39,12 +39,16 @@ RUN ssh-keygen -A
 
 RUN echo "ExposeAuthInfo yes" >> /etc/ssh/sshd_config
 
-ARG NODE_VERSION=18.16.0
-RUN wget https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz
-RUN tar -xJf node-v$NODE_VERSION-linux-arm64.tar.xz && \
-	rm node-v$NODE_VERSION-linux-arm64.tar.xz && \
-	mv node-v$NODE_VERSION-linux-arm64 /usr/local/node && \
-	echo 'export PATH=/usr/local/node/bin:$PATH' >> /etc/bash.bashrc
+#Download LTS VERSION
+RUN export NODE_VERSION=$(curl -s https://nodejs.org/download/release/latest-v18.x/SHASUMS256.txt|grep linux-x64.tar.xz|awk '{print $2}'|sed 's/-linux-x64.tar.xz//g') && \
+    wget https://nodejs.org/download/release/latest-v18.x/${NODE_VERSION}-linux-x64.tar.xz && \
+    tar -xJf ${NODE_VERSION}-linux-x64.tar.xz && \
+	rm ${NODE_VERSION}-linux-x64.tar.xz && \
+	mv ${NODE_VERSION}-linux-x64 /usr/local/node && \
+	echo 'export PATH=/usr/local/node/bin:$PATH' >> /etc/bash.bashrc && \
+    export PATH=/usr/local/node/bin:$PATH && \
+    npm install -g npm@latest
+
 
 # Link /var/www/html to home director
 RUN ln -s /var/www/html /home/dlaravel/html
