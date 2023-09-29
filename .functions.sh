@@ -82,6 +82,7 @@ function stop {
 }
 
 function exec_bash {
+    #SHELL=sh
     args=" -f $(default_yml_file).yml "
     for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
     do
@@ -94,13 +95,13 @@ function exec_bash {
         docker-compose  -p ${PROJECT} ${args}\
         exec -w /var/www/html/$2 \
         -u dlaravel \
-        $1 bash
+        $1 ${SHELL}
         if [ $? -eq 1 ];then
-            echo "docker run --rm -v $(readlink -f ${FOLDER}/):/var/www/html -ti $(grep -E 'PROJECT=.+$' .env|cut -d= -f2)_$1 bash"
-            docker run --rm -v $(readlink -f ${FOLDER}/):/var/www/html -ti $(grep -E 'PROJECT=.+$' .env|cut -d= -f2)_$1 bash
+            echo "docker run --rm -v $(readlink -f ${FOLDER}/):/var/www/html -ti $(grep -E 'PROJECT=.+$' .env|cut -d= -f2)_$1 ${SHELL}"
+            docker run --rm -v $(readlink -f ${FOLDER}/):/var/www/html -ti $(grep -E 'PROJECT=.+$' .env|cut -d= -f2)_$1 ${SHELL}
         fi
     else
-        docker-compose  -p ${PROJECT} ${args} exec $1  bash
+        docker-compose  -p ${PROJECT} ${args} exec $1 ${SHELL}
     fi
     exit
 }

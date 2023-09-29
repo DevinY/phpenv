@@ -6,6 +6,7 @@ fi
 export CPU=$(uname -m)
 source .env
 source .functions.sh
+SHELL="${SH:-bash}"
 
 if [[ "$1" = 'info' && "$2" = 'all' ]];then
     shift 2
@@ -187,7 +188,7 @@ if [ "$1" ];then
             echo "Link to Project of "${PROJECT}
             shift 1
             echo "Entering service $(get_workspace) as workspace"
-            console exec $(get_workspace) bash
+            console exec $(get_workspace) ${SHELL}
         exit
     fi
 fi
