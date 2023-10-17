@@ -53,6 +53,9 @@ RUN export NODE_VERSION=$(curl -s https://nodejs.org/download/release/latest-v18
 # Link /var/www/html to home director
 RUN ln -s /var/www/html /home/dlaravel/html
 
+# Add random password for dlaravel
+RUN echo "dlaravel:`pwgen`" |chpasswd
+
 USER dlaravel
 ENV LANG zh_TW.UTF-8
 ENV LANGUAGE zh_TW.UTF-8
