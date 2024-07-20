@@ -6,6 +6,10 @@ WORKSPACE=php
 #取得目前bash執行路徑
 script_dir=$(dirname $0)
 . ${script_dir}/.env
+if [ $? -gt 0 ];then
+    exit 1
+fi
+
 echo ${PROJECT}
 export DOCKER_CLI_HINTS="false"
 
