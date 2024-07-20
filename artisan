@@ -1,5 +1,7 @@
 #!/bin/bash
-source .env
-
-docker-compose -p ${PROJECT} exec php php artisan $@
+#取得目前bash執行路徑
+script_dir=$(dirname $0)
+. ${script_dir}/.env
+echo ${PROJECT}
+docker exec -ti ${PROJECT}-php-1 sh -c "/usr/local/bin/php artisan $@"
 
