@@ -3,5 +3,6 @@
 script_dir=$(dirname $0)
 . ${script_dir}/.env
 echo ${PROJECT}
+export DOCKER_CLI_HINTS="false"
 docker exec -ti ${PROJECT}-php-1 sh -c "/usr/local/bin/php artisan $@"
 
