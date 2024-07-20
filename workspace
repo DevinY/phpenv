@@ -9,4 +9,8 @@ script_dir=$(dirname $0)
 echo ${PROJECT}
 export DOCKER_CLI_HINTS="false"
 
+if [ $1 ];then
+  WORKSPACE=$1
+fi
+
 docker exec -ti ${PROJECT}-${WORKSPACE}-1 ${SHELL}
