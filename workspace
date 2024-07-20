@@ -1,0 +1,12 @@
+#!/bin/bash
+#Default SHELL
+SHELL=bash
+#Default workspace
+WORKSPACE=php
+#取得目前bash執行路徑
+script_dir=$(dirname $0)
+. ${script_dir}/.env
+echo ${PROJECT}
+export DOCKER_CLI_HINTS="false"
+
+docker exec -ti ${PROJECT}-${WORKSPACE}-1 ${SHELL}
