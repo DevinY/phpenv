@@ -6,7 +6,9 @@ fi
 export CPU=$(uname -m)
 source .env
 source .functions.sh
+export PHPENV=$(dirname $0)
 SHELL="${SH:-bash}"
+
 
 if [[ "$1" = 'info' && "$2" = 'all' ]];then
     shift 2
@@ -18,6 +20,11 @@ if [[ "$1" = 'info' && "$2" = 'ports' ]];then
     shift 2
     ./ports
     exit
+fi
+
+if [[ "$1" == '-V' || "$1" == '--v' ]];then
+    cat ${PHPENV}/etc/phpenv-release
+    exit 0
 fi
 
 if [[ "$1" = 'commit' ]];then
