@@ -199,8 +199,10 @@ if [ "$1" ];then
         exit
     fi
 fi
-echo $CPU
-#echo Project: $(ls -l .env|cut -d/ -f 2)
-echo Project: $PROJECT
+
+if [[ "$3" != "mysqldump" ]];then
+ echo $CPU
+ echo Project: $PROJECT
+fi
 
 console $@
