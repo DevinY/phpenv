@@ -1,4 +1,25 @@
+#=========== vscode Remote ssh =================
 services:
+ ssh_db:
+  build:
+    context: ./dockerfiles
+    dockerfile: Dockerfile-ssh-${CPU-x86_64}
+    args:
+      USER_ID: ${USER_ID-1000}
+      GROUP_ID: ${GROUP_ID-1000}
+  image: ${PROJECT}_ssh
+  init: true
+  ports:
+    - ${SSH_PORT-2222}:22
+    - ${DB_PORT-127.0.0.1:3306}:3306
+  volumes:
+    - ./etc/php:/usr/local/etc/php/conf.d
+    - ./etc/code-server:/home/dlaravel/.vscode-server
+    - ./authorized_keys:/home/dlaravel/.ssh/authorized_keys
+    - ${FOLDER-./project}:/var/www/html
+  restart: unless-stopped
+  networks:
+    - dlaravel_net
  db:
   image: mariadb:10.5.5
   #ports:
@@ -12,5 +33,7 @@ services:
     - TZ=Asia/Taipei
   restart: "always"
   depends_on:
-    - ssh
-  network_mode: service:ssh
+    - ssh_db
+  network_mode: service:ssh_db
+networks:
+    dlaravel_net:
