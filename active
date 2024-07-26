@@ -14,6 +14,10 @@ alias workspace="${PHPENV}/workspace"
 alias tinker="${PHPENV}/artisan tinker"
 #info
 alias info="cd ${PHPENV}&&./console info&&cd -"
+function console {
+ cd ${PHPENV}
+ ./console $@
+}
 #start up as active
 cd ${PHPENV}
 #gen default link file
