@@ -17,6 +17,7 @@ alias info="cd ${PHPENV}&&./console info&&cd -"
 function console {
  cd ${PHPENV}
  ./console $@
+ cd -
 }
 #start up as active
 cd ${PHPENV}
