@@ -1,0 +1,5 @@
+#!/bin/bash
+PHPENV=$(dirname $0)
+cd ${PHPENV}
+./stop
+cd -

@@ -1,0 +1,12 @@
+#!/bin/bash
+#取得目前bash執行路徑
+script_dir=$(dirname $0)
+. ${script_dir}/.env
+echo ${PROJECT}
+export DOCKER_CLI_HINTS="false"
+ARG=mysql
+if [ $@ ];then
+ ARG=$@
+fi
+docker exec -ti ${PROJECT}-db-1 sh -c "${ARG}"
+

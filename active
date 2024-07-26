@@ -1,0 +1,22 @@
+#!/bin/bash
+PHPENV=$(dirname $0)
+#Go to the phpenv folder
+alias phpenv="cd ${PHPENV}"
+#Go to the Project folder
+alias pf="cd $(grep FOLDER ${PHPENV}/.env|sed 's/FOLDER=//g')"
+#artisan command
+alias artisan="${PHPENV}/artisan"
+#db service
+alias db="${PHPENV}/db"
+#phpenv workspace
+alias workspace="${PHPENV}/workspace"
+#tinker
+alias tinker="${PHPENV}/artisan tinker"
+#info
+alias info="cd ${PHPENV}&&./console info&&cd -"
+#start up as active
+cd ${PHPENV}
+#gen default link file
+./link default
+./start
+cd -
