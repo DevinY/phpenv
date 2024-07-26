@@ -4,8 +4,10 @@
 NUM=$(ls -1 envs|wc -l)
 if [ $NUM -eq 0 ];then
     PROJECT_FOLDER=$(basename $(dirname $(pwd)))
+    CPU=$(uname -m)
     echo $PROJECT_FOLDER
-    echo "#DEFAULT=random"> envs/default
+    echo "CPU=${CPU}"> envs/default
+    echo "#DEFAULT=random" >> envs/default
     echo '#SERVICES="ssh"' >> envs/default
     echo "PROJECT=${PROJECT_FOLDER}" >> envs/default
     echo "APP_URL=http://127.0.0.1:1050" >> envs/default
