@@ -1,5 +1,5 @@
 #!/bin/bash
-BASHFILES="start stop stats restart reload info link all ports artisan console .functions.sh update_bash.sh workspace artisan link active db deactive"
+BASHFILES="start stop stats restart reload info link all ports artisan console .functions.sh update_bash.sh workspace artisan link activate db"
 function update {
     for f in $BASHFILES
     do
