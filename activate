@@ -64,7 +64,6 @@ deactivate () {
         PS1="${_OLD_VIRTUAL_PS1:-}"
         export PS1
         unset _OLD_VIRTUAL_PS1
-        console stop
     fi
 
     unset VIRTUAL_ENV
