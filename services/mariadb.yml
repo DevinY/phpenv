@@ -4,6 +4,7 @@ services:
   hostname: db
   volumes:
     - ./data/${PROJECT-default}:/var/lib/mysql
+    - ${FOLDER-./project}:/var/www/html
   environment:
     - MYSQL_ALLOW_EMPTY_PASSWORD=yes
     - MYSQL_ROOT_HOST=127.0.0.1
