@@ -1,5 +1,13 @@
 #!/bin/bash
-PHPENV=$(dirname -- $(realpath -- "$0"))/phpenv
+if [ -d phpenv ];then
+ cd phpenv
+ PHPENV=$(pwd)
+ cd -
+else
+ PHPENV=$(pwd)
+fi
+
+#cd -
 #Go to the phpenv folder
 alias phpenv="cd ${PHPENV}"
 #Go to the Project folder
