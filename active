@@ -1,5 +1,5 @@
 #!/bin/bash
-PHPENV=$(dirname $0)
+PHPENV=$(dirname -- $(realpath -- "$0"))/phpenv
 #Go to the phpenv folder
 alias phpenv="cd ${PHPENV}"
 #Go to the Project folder
@@ -22,6 +22,9 @@ function console {
 #start up as active
 cd ${PHPENV}
 #gen default link file
-./link default
+NUM=$(ls -1 envs|wc -l)
+if [ $NUM -eq 0 ];then
+ ./link default
+fi
 ./start
 cd -
