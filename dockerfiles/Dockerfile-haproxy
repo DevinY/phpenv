@@ -2,6 +2,6 @@ FROM haproxy
 
 USER root
 
-RUN apt update&&apt -y install certbot
+RUN apt update&&apt -y install certbot procps
 
 CMD ["/usr/local/sbin/haproxy", "-f","/etc/haproxy","-d"]
