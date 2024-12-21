@@ -40,8 +40,8 @@ RUN ssh-keygen -A
 RUN echo "ExposeAuthInfo yes" >> /etc/ssh/sshd_config
 
 #Download LTS VERSION
-RUN export NODE_VERSION=$(curl -sL https://nodejs.org/download/release/latest-v18.x/SHASUMS256.txt|grep linux-arm64.tar.xz|awk '{print $2}'|sed 's/-linux-arm64.tar.xz//g') && \
-    wget https://nodejs.org/download/release/latest-v18.x/${NODE_VERSION}-linux-arm64.tar.xz && \
+RUN export NODE_VERSION=$(curl -sL https://nodejs.org/download/release/latest-v22.x/SHASUMS256.txt|grep linux-arm64.tar.xz|awk '{print $2}'|sed 's/-linux-arm64.tar.xz//g') && \
+    wget https://nodejs.org/download/release/latest-v22.x/${NODE_VERSION}-linux-arm64.tar.xz && \
     tar -xJf ${NODE_VERSION}-linux-arm64.tar.xz && \
 	rm ${NODE_VERSION}-linux-arm64.tar.xz && \
 	mv ${NODE_VERSION}-linux-arm64 /usr/local/node && \
