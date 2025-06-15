@@ -1,0 +1,2 @@
+#!/bin/bash
+docker ps -q | xargs -I {} docker port {} | grep '0\.0\.0\.0' | awk -F':' '{print $NF}'|sort -n
