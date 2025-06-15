@@ -38,7 +38,7 @@ fi
 
 
 echo "Type number to select your project environment:"
-array="$(cd envs&&ls *|sort)"
+array="$(cd envs&&ls|grep -v '^@'|sort)"
 touch authorized_keys
 
  select option in ${array[@]}
