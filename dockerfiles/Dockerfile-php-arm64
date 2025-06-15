@@ -1,4 +1,4 @@
-FROM deviny/fpm:8.3.9
+FROM deviny/fpm:8.4.8
 ARG USER_ID
 ENV USER_ID ${USER_ID:-1000}
 
