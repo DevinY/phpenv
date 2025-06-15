@@ -38,7 +38,7 @@ RUN export NODE_VERSION=$(curl -sL https://nodejs.org/download/release/latest-v2
 RUN ln -s /var/www/html /home/dlaravel/html
 
 # Add the cron job
-#RUN crontab -l | { cat; echo "* * * * * cd /var/www/html && /usr/local/bin/php artisan schedule:run >> /dev/null 2>&1"; } |crontab -
+RUN crontab -l | { cat; echo "* * * * * cd /var/www/html && /usr/local/bin/php artisan schedule:run >> /dev/null 2>&1"; } |crontab -
 
 USER dlaravel
 ENV LANG zh_TW.UTF-8
