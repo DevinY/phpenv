@@ -1,0 +1,5 @@
+[client]
+skip-ssl
+
+[mysqldump]
+skip-ssl
