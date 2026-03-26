@@ -40,14 +40,16 @@ RUN ssh-keygen -A
 RUN echo "ExposeAuthInfo yes" >> /etc/ssh/sshd_config
 
 #Download LTS VERSION
-RUN export NODE_VERSION=$(curl -sL https://nodejs.org/download/release/latest-v22.x/SHASUMS256.txt|grep linux-x64.tar.xz|awk '{print $2}'|sed 's/-linux-x64.tar.xz//g') && \
-    wget https://nodejs.org/download/release/latest-v22.x/${NODE_VERSION}-linux-x64.tar.xz && \
-    tar -xJf ${NODE_VERSION}-linux-x64.tar.xz && \
-	rm ${NODE_VERSION}-linux-x64.tar.xz && \
-	mv ${NODE_VERSION}-linux-x64 /usr/local/node && \
-	echo 'export PATH=/usr/local/node/bin:$PATH' >> /etc/bash.bashrc && \
-    export PATH=/usr/local/node/bin:$PATH && \
-    npm install -g npm@latest
+RUN ARCH=$(uname -m) && \
+      if [ "$ARCH" = "x86_64" ]; then ARCH="x64"; \
+      elif [ "$ARCH" = "aarch64" ]; then ARCH="arm64"; \
+      else echo "Unsupported architecture: $ARCH" && exit 1; \
+      fi && \
+      NODE_VERSION=$(curl -sL https://nodejs.org/download/release/latest-v22.x/SHASUMS256.txt | grep "linux-$ARCH.tar.xz" | awk '{print $2}' | sed "s/-linux-$ARCH.tar.xz//g") && \
+      wget https://nodejs.org/download/release/latest-v22.x/${NODE_VERSION}-linux-${ARCH}.tar.xz && \
+      tar -xJf ${NODE_VERSION}-linux-${ARCH}.tar.xz -C /usr/local --strip-components=1 && \
+      rm ${NODE_VERSION}-linux-${ARCH}.tar.xz && \
+      ln -sf /usr/local/bin/node /usr/bin/node
 
 
 # Link /var/www/html to home director
