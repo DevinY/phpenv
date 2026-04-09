@@ -52,6 +52,63 @@ function default_yml_file(){
     echo $DEFAULT
 }
 
+# Sync php-fpm pool user/group in etc/php-fpm.d/www.conf with USER_ID/GROUP_ID from .env before build.
+function sync_php_fpm_www_conf_from_env() {
+    local www_conf="${PHPENV:-.}/etc/php-fpm.d/www.conf"
+    if [ ! -f "$www_conf" ]; then
+        return 0
+    fi
+    local uid gid
+    uid=$(grep -E '^USER_ID=' .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d ' \r"'"'"'')
+    gid=$(grep -E '^GROUP_ID=' .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d ' \r"'"'"'')
+    if [ -z "$uid" ]; then
+        uid=1000
+    fi
+    if [ -z "$gid" ]; then
+        gid=1000
+    fi
+    local cur_user cur_group
+    cur_user=$(awk '/^user[ \t]*=/ && $0 !~ /^[ \t]*;/ { gsub(/^[ \t]*user[ \t]*=[ \t]*/, ""); gsub(/[ \t]+$/, ""); print; exit }' "$www_conf")
+    cur_group=$(awk '/^group[ \t]*=/ && $0 !~ /^[ \t]*;/ { gsub(/^[ \t]*group[ \t]*=[ \t]*/, ""); gsub(/[ \t]+$/, ""); print; exit }' "$www_conf")
+    if [ "$cur_user" = "$uid" ] && [ "$cur_group" = "$gid" ]; then
+        return 0
+    fi
+    echo "php-fpm www.conf: user/group ${cur_user:-?}/${cur_group:-?} -> ${uid}/${gid} (from .env USER_ID/GROUP_ID)"
+    local tmp
+    tmp=$(mktemp) || return 1
+    sed -E -e "s/^user[[:space:]]*=.*/user = ${uid}/" -e "s/^group[[:space:]]*=.*/group = ${gid}/" "$www_conf" > "$tmp" && mv "$tmp" "$www_conf"
+}
+
+# Read or rotate Redis requirepass in services/redis.yml (default password -> random hex via openssl).
+function print_or_rotate_redis_yml_secret() {
+    local redis_yml="${PHPENV:-.}/services/redis.yml"
+    local default='You_Should_Change_This_Password'
+    if [ ! -f "$redis_yml" ]; then
+        echo "services/redis.yml not found." >&2
+        return 1
+    fi
+    local line current
+    line=$(grep -E 'redis-server.*--requirepass' "$redis_yml" | grep -Ev '^[[:space:]]*#' | head -1)
+    if [ -z "$line" ]; then
+        echo "No redis-server --requirepass line found in services/redis.yml" >&2
+        return 1
+    fi
+    current=$(printf '%s\n' "$line" | sed -E 's/.*--requirepass[[:space:]]+//;s/[[:space:]]+$//')
+    if [ -z "$current" ]; then
+        echo "Could not parse Redis password from services/redis.yml" >&2
+        return 1
+    fi
+    if [ "$current" = "$default" ]; then
+        local new_secret tmp
+        new_secret=$(openssl rand -hex 32)
+        tmp=$(mktemp) || return 1
+        sed "s|${default}|${new_secret}|g" "$redis_yml" > "$tmp" && mv "$tmp" "$redis_yml"
+        printf '%s\n' "$new_secret"
+    else
+        printf '%s\n' "$current"
+    fi
+}
+
 function start {
     mkdir -p etc/cache
     touch authorized_keys

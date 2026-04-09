@@ -61,12 +61,13 @@ if [[ "$1" = 'commit' ]];then
 fi
 
 if [[ "$1" = 'help' ]];then
-    echo "Usage: $0 [all|info|start|stop|link|reload|commit|drive|stats|<project>]"
+    echo "Usage: $0 [all|info|start|stop|link|reload|secret|commit|drive|stats|<project>]"
     echo "  all: show all projects running status"
     echo "  info: show .env file"
     echo "  start: start .env project"
     echo "  stop: stop .env project"
     echo "  stats: view all projects stats"
+    echo "  secret: show or generate Redis password in services/redis.yml"
     echo "  commit: commit image for running container"
     echo "  drive: run bash for drive.yml defualt service name"
     echo "  help: $0"
@@ -131,6 +132,12 @@ if [ "$1" = 'reload' ];then
     exit
 fi
 
+# Redis requirepass: show current secret, or replace default with random and print
+if [ "$1" = 'secret' ]; then
+    print_or_rotate_redis_yml_secret
+    exit $?
+fi
+
 #執行容器內的命令
 if [ "$1" = 'artisan' ];then
     docker-compose -p ${PROJECT} exec php php $@
@@ -155,6 +162,7 @@ fi
 
 #Check Project Image
 if [ "$1" = 'build' ];then
+    sync_php_fpm_www_conf_from_env
     if [ $? -eq 0 ];then
         args=$(get_args)
         #echo "docker-compose -p ${PROJECT} ${args} build --no-cache"
