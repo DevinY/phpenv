@@ -26,6 +26,11 @@ function console {
  ./console $@
  cd -
 }
+# stop stack then restart running containers (same as: console stop && console restart)
+# Note: to apply new SERVICES in phpenv/.env and create missing containers (e.g. redis), use: console stop && console start
+function envrestart {
+ console stop && console restart
+}
 #start up as active
 cd ${PHPENV}
 #gen default link file
@@ -41,6 +46,16 @@ cd -
 # you cannot run it directly
 
 deactivate () {
+    # Full deactivate only: drop phpenv commands. Skip when called as
+    # `deactivate nondestructive` (used once while sourcing this file).
+    if [ "${1:-}" != "nondestructive" ]; then
+        for _phpenv_alias in phpenv pf artisan db workspace tinker info; do
+            unalias "${_phpenv_alias}" 2>/dev/null
+        done
+        unset -f console envrestart 2>/dev/null
+        unset PHPENV 2>/dev/null
+    fi
+
     # reset old environment variables
     if [ -n "${_OLD_VIRTUAL_PATH:-}" ] ; then
         PATH="${_OLD_VIRTUAL_PATH:-}"

@@ -24,10 +24,14 @@ function get_project(){
     echo $PROJECT
 }
 
+function services_list_from_env(){
+        grep -Ei "^[[:space:]]*SERVICES=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '\r' | sed 's/"//g'
+}
+
 function get_args(){
         args=" -f $(default_yml_file).yml "
         #add additional yml files
-        for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
+        for SERVICE in $(services_list_from_env)
         do
             if [ -f "services/${SERVICE}.yml" ];then
                 args+=" -f services/${SERVICE}.yml "
@@ -115,13 +119,13 @@ function start {
     echo ${APP_URL}
     PROJECT=$1
     args=" -f $(default_yml_file).yml "
-    for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
+    for SERVICE in $(services_list_from_env)
     do
         if [ -f "services/${SERVICE}.yml" ];then
             args+=" -f services/${SERVICE}.yml "
         fi
     done
-    docker-compose -p ${PROJECT} ${args} up -d
+    docker-compose -p ${PROJECT} ${args} up -d --remove-orphans
 }
 
 function stop {
@@ -129,7 +133,7 @@ function stop {
     echo ${APP_URL}
     PROJECT=$1
     args=" -f $(default_yml_file).yml "
-    for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
+    for SERVICE in $(services_list_from_env)
     do
         if [ -f "services/${SERVICE}.yml" ];then
             args+=" -f services/${SERVICE}.yml "
@@ -141,7 +145,7 @@ function stop {
 function exec_bash {
     #SHELL=sh
     args=" -f $(default_yml_file).yml "
-    for SERVICE in $(grep -Ei "^SERVICES" .env|cut -d= -f2|sed 's/"//g')
+    for SERVICE in $(services_list_from_env)
     do
         if [ -f "services/${SERVICE}.yml" ];then
             args+=" -f services/${SERVICE}.yml "
@@ -184,7 +188,33 @@ function console() {
                 echo $APP_URL
             fi
         else
-            docker-compose -p ${PROJECT} ${args} $@
+            # Bare `restart` with no service names: some Compose versions do not restart
+            # services from merged `-f services/*.yml`; expand full service list explicitly.
+            if [[ "$1" == "restart" && "$#" -eq 1 ]]; then
+                _all_svc=$(docker-compose -p ${PROJECT} ${args} config --services 2>/dev/null)
+                if [ -n "${_all_svc}" ]; then
+                    # shellcheck disable=SC2086
+                    docker-compose -p ${PROJECT} ${args} restart ${_all_svc}
+                else
+                    docker-compose -p ${PROJECT} ${args} restart
+                fi
+            else
+                # `up` (e.g. ./console start → compose up -d): drop orphan containers from
+                # older compose merges so redis/extra services do not warn as orphans.
+                if [[ "$1" == "up" ]]; then
+                    _has_ro=false
+                    for _a in "$@"; do
+                        [[ "$_a" == "--remove-orphans" ]] && _has_ro=true && break
+                    done
+                    if ! $_has_ro; then
+                        docker-compose -p ${PROJECT} ${args} "$@" --remove-orphans
+                    else
+                        docker-compose -p ${PROJECT} ${args} "$@"
+                    fi
+                else
+                    docker-compose -p ${PROJECT} ${args} "$@"
+                fi
+            fi
         fi
     else
         echo ".env not found"
