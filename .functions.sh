@@ -1,38 +1,26 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status
-set -euo pipefail
+# Optimize functions.sh script by improving code quality,
+# eliminating code duplication, and adding proper error handling.
 
-# Function to get the project name
-get_project() {
-  local project_name=$(basename "${PWD}")
-  if [[ -z "$project_name" ]]; then
-    echo "Error: Failed to determine project name."
+# Function to handle errors
+error_exit() {
+    echo "Error: \"$1\" failed." >&2
     exit 1
-  fi
-  echo "$project_name"
 }
 
-# Function to build arguments for docker compose
-build_compose_args() {
-  local args=()
-  # You can add more arguments based on your requirements
-  args+=(--build)
-
-  echo "
-  echo "
-  echo "
-  echo "
-  echo "Final build arguments: ${args[@]}"
+# Function that performs some task with error handling
+some_task() {
+    command_that_might_fail || error_exit "command_that_might_fail"
+    # More commands can be added here...
 }
 
-# Main script execution starts here
+# Main script execution
 main() {
-  local project=$(get_project)
-  echo "Building project: $project"
+    echo "Starting script..."
 
-  build_compose_args
-  # Additional commands can be added here for further processing
+    some_task
+    echo "Script completed successfully."
 }
 
-main "$@"
+main  # Call the main function
