@@ -1,14 +1,12 @@
 #!/bin/bash
-if [ -f .env ];then
-    source .functions.sh
-    #Stop multiple project
-    if [[ "$1" = 'all' ]];then
-            ./all stop
-        exit
-    fi
-    #single project
-    PROJECT=$(grep 'PROJECT' .env|cut -d= -f2)
-    stop ${PROJECT}
-else
-    echo ".env not found"
+if [[ ! -f .env ]]; then
+    echo "Error: .env not found."
+    exit 1
 fi
+
+if [[ "$1" == 'all' ]]; then
+    ./all stop
+    exit 0
+fi
+
+./console stop "$@"

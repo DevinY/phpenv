@@ -1,5 +1,10 @@
 #!/bin/bash
+if [[ ! -f .env ]]; then
+    echo "Error: .env not found."
+    exit 1
+fi
 source .env
 source .functions.sh
-echo ${PROJECT} project nginx reload
-docker-compose  -p ${PROJECT} exec web sh -c "nginx -s reload"
+
+echo "Reloading Nginx for project: ${PROJECT}..."
+docker-compose -p "${PROJECT}" exec web sh -c "nginx -s reload"

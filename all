@@ -1,28 +1,38 @@
 #!/bin/bash
 source .functions.sh
-for PROJECT in $(grep 'PROJECT' $(find envs -maxdepth 1 -type f -not -path 'envs/.*')|cut -d= -f2)
-do
-    if [[ ${PROJECT} = ${CURRENT_PROJECT} ]]; then
-        echo "Project: * ${PROJECT} (current)"
-        else
-        echo "Project: ${PROJECT}"
+
+# Store current link to restore later
+CURRENT_LINK=$(readlink .env)
+
+# Find all env files in envs/
+ENV_FILES=$(find envs -maxdepth 1 -type f -not -path 'envs/.*')
+
+for FILE in $ENV_FILES; do
+    PROJECT_NAME=$(grep -Ei "^PROJECT=" "$FILE" | cut -d= -f2 | tr -d '\r')
+    
+    if [[ "$FILE" == "$CURRENT_LINK" ]]; then
+        echo "Project: * ${PROJECT_NAME} (current)"
+    else
+        echo "Project: ${PROJECT_NAME}"
     fi
-    SUBCMD=ps
-    if [ $1 ];then
-        SUBCMD=$1
+
+    SUBCMD=${1:-ps}
+    
+    # Check for duplicate project names across env files
+    MATCH_COUNT=$(grep -c "PROJECT=${PROJECT_NAME}$" envs/*)
+    if [[ $MATCH_COUNT -gt 1 ]]; then
+        echo "Error: Duplicate project name '${PROJECT_NAME}' found in envs/."
+        grep "PROJECT=${PROJECT_NAME}$" envs/*
+        continue
     fi
-    echo $PROJECT
-    #Check Only one project
-    PROJECT_NUM=$(grep -E "PROJECT=${PROJECT}$" envs/*|wc -l)
-    if [ $PROJECT_NUM -gt 1 ]; then
-        grep PROJECT=${PROJECT} envs/*
-        echo "The smae Project name are found."
-        exit 1
-    fi
-    PROJECT_FILE=$(grep -E "PROJECT=${PROJECT}$" envs/*|cut -d: -f1)
-    ln -sf ${PROJECT_FILE} .env
-    echo "Project FILE: ${PROJECT_FILE}"
-    ./console ${SUBCMD}
-    echo -e "\n"
+
+    echo "Action: ${SUBCMD} for Project: ${PROJECT_NAME} (${FILE})"
+    ln -sf "$FILE" .env
+    ./console "${SUBCMD}"
+    echo -e "-------------------------------------------\n"
 done
-ln -sf ${CURRENT_PROJECT_FILE} .env
+
+# Restore original link
+if [[ -n "$CURRENT_LINK" ]]; then
+    ln -sf "$CURRENT_LINK" .env
+fi

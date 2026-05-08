@@ -1,64 +1,65 @@
 #!/bin/bash
-#echo "Before You change env, make sure stop current project you are running"
-#檢測是否有env檔存在，不存再就建立
-NUM=$(ls -1 envs|wc -l)
-if [ $NUM -eq 0 ];then
-    PROJECT_FOLDER=$(basename $(dirname $(pwd)))
+
+# Ensure envs directory exists
+mkdir -p envs
+
+# Check if any env files exist, if not create default
+NUM=$(ls -1 envs | wc -l)
+if [[ $NUM -eq 0 ]]; then
+    PROJECT_FOLDER=$(basename "$(dirname "$(pwd)")")
     CPU=$(uname -m)
-    echo $PROJECT_FOLDER
-    echo "CPU=${CPU}"> envs/default
-    echo "#DEFAULT=random" >> envs/default
-    echo '#SERVICES="ssh"' >> envs/default
-    echo "PROJECT=${PROJECT_FOLDER}" >> envs/default
-    echo "APP_URL=http://127.0.0.1:1050" >> envs/default
-    echo "FOLDER=.." >> envs/default
-    echo "HTTP_PORT=1050" >> envs/default
-    echo "#HTTPS_PORT=1150" >> envs/default
-    echo "#DB_PORT=1250" >> envs/default
-    echo "#SSH_PORT=2222" >> envs/default
-    echo "#DRIVE_PORT=2223" >> envs/default
-    echo "USER_ID=1000" >> envs/default
-    echo "GROUP_ID=1000" >> envs/default
-    echo "Default env not found, create default to envs folder."
-    echo "You can now edit your .env file to start up."
+    
+    cat > envs/default <<EOF
+CPU=${CPU}
+#DEFAULT=random
+#SERVICES="ssh"
+PROJECT=${PROJECT_FOLDER}
+APP_URL=http://127.0.0.1:1050
+FOLDER=..
+HTTP_PORT=1050
+#HTTPS_PORT=1150
+#DB_PORT=1250
+#SSH_PORT=2222
+#DRIVE_PORT=2223
+USER_ID=$(id -u)
+GROUP_ID=$(id -g)
+EOF
+    echo "Default environment template created in envs/default."
+    echo "You can now edit it and run ./link again."
     ln -sf envs/default .env
-    exit
+    exit 0
 fi
 
-if [[ $1 != "" ]];then
-    if [ ! -f envs/$1 ];then
-        echo "envs/$1 not found, unable to link."
-        exit
+# Quick link if argument provided
+if [[ -n "$1" ]]; then
+    if [[ ! -f "envs/$1" ]]; then
+        echo "Error: envs/$1 not found."
+        exit 1
     fi
-    ln -sf envs/$1 .env
-    echo Link to $(ls -l .env|awk '{print $NF}')
+    ln -sf "envs/$1" .env
+    echo "Linked .env to $(readlink .env)"
     ./info
-    exit;
+    exit 0
 fi
 
-
-echo "Type number to select your project environment:"
-array="$(cd envs&&ls|grep -v '^@'|sort)"
+# Interactive selection
+echo "Select a project environment:"
+array=($(cd envs && ls | grep -v '^@' | sort))
 touch authorized_keys
 
- select option in ${array[@]}
-do
-    case $option in
-        *) 
-            if [ ! $option ];then
-                    break
-                else
-                        ln -sf envs/$option .env
-                        ls -l .env|sed -E "s/^(l.*->)(.*)/.env link to\2/g"
-                        . .env
-                        if [ ! -d $FOLDER ];then
-                            echo "Cant not found project folder ${FOLDER}"
-                            exit
-                        fi
-                        echo -e "==== current env file ====="
-                        cat .env
-                    break
-            fi
-            ;;
-    esac
+PS3="Enter number: "
+select option in "${array[@]}"; do
+    if [[ -n "$option" ]]; then
+        ln -sf "envs/$option" .env
+        echo ".env linked to envs/$option"
+        source .env
+        if [[ ! -d "$FOLDER" ]]; then
+            echo "Warning: Project folder '$FOLDER' not found."
+        fi
+        echo "--- Current Environment ---"
+        cat .env
+        break
+    else
+        echo "Invalid selection."
+    fi
 done

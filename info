@@ -1,50 +1,59 @@
 #!/bin/bash
-if [ -f .env ];then
-    source .env
-    source .functions.sh
+if [[ ! -f .env ]]; then
+    echo "Error: .env file not found."
+    echo "Run ./link to create or link one."
+    exit 1
 fi
 
-if [[ "$1" = "help" ]];then
-    echo "Usage: $0 [all|ports|help|list|<project>]"
-    echo "  all: show all projects running status"
-    echo "  list: show all projects"
-    echo "  ports: show all ports"
-    echo "  help: show this help"
-    exit
-fi
+source .env
+source .functions.sh
 
-if [[ "$1" = 'list' ]];then
-    echo "List of projects:"
-    cd envs&&ls *
+if [[ "$1" == "help" ]]; then
+    echo "Usage: $0 [all|ports|list|<project_env>]"
+    echo "  all:   Show running status of all projects"
+    echo "  list:  List all available environment files in envs/"
+    echo "  ports: Show all used ports"
     exit 0
 fi
 
-if [[ "$1" = 'all' ]];then
+if [[ "$1" == 'list' ]]; then
+    echo "Available projects in envs/:"
+    ls envs/
+    exit 0
+fi
+
+if [[ "$1" == 'all' ]]; then
     ./all
-    exit
+    exit 0
 fi
 
-if [[ "$1" = 'ports' ]];then
+if [[ "$1" == 'ports' ]]; then
     ./ports
-    exit
+    exit 0
 fi
 
-if [[ "$1" != "" ]];then
-    ENVFILE="envs/$1"
-else
-    ENVFILE=".env"
-fi
-
-
-if [ $DEFAULT ] && [ $DEFAULT = "random" ];then
-    TERM_STDOUT=$(docker-compose -p ${PROJECT} ps)
-    PORT=$(echo -e "$TERM_STDOUT"|grep "${PROJECT}-web-1"|sed -r 's/.+0.0.0.0:([[:digit:]]+)->80.+/\1/g')
-    #cat .env|sed -r '/^#/d'|sed -r "s/^(APP_URL=.+):random/\1:${PORT}/g"
-    if [ $PORT ];then
-        cat ${ENVFILE}|sed -r '/^#/d'|sed -r "s/^APP_URL=(.+):random/APP_URL=\1:${PORT}/g"
+# Use specified env file or current .env
+ENVFILE=".env"
+if [[ -n "$1" ]]; then
+    if [[ -f "envs/$1" ]]; then
+        ENVFILE="envs/$1"
     else
-        cat ${ENVFILE}|sed -r '/^#/d'   
+        echo "Warning: envs/$1 not found, using current .env"
+    fi
+fi
+
+echo "--- Configuration Info: $ENVFILE ---"
+
+if [[ "$DEFAULT" == "random" ]]; then
+    # Dynamically determine APP_URL if random port is used
+    OUTPUT=$(docker-compose -p "${PROJECT}" ps 2>/dev/null)
+    PORT=$(echo "$OUTPUT" | grep "${PROJECT}-web-1" | sed -r 's/.+0.0.0.0:([[:digit:]]+)->80.+/\1/g')
+    
+    if [[ -n "$PORT" ]]; then
+        sed -E "/^#/d; s|^APP_URL=(.+):random|APP_URL=\1:${PORT}|g" "$ENVFILE"
+    else
+        sed -E "/^#/d" "$ENVFILE"
     fi
 else
-    cat ${ENVFILE}|sed -r '/^#/d'   
+    sed -E "/^#/d" "$ENVFILE"
 fi

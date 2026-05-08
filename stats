@@ -1,15 +1,19 @@
 #!/bin/bash
 source .functions.sh
-echo ${CURRENT_PROJECT_FILE}
 
-for o in $(grep 'PROJECT' $(find envs -maxdepth 1 -type f -not -path 'envs/.*')|cut -d= -f2)
-do
-if [[ "envs/${o}" = ${CURRENT_PROJECT_FILE} ]]; then
-    CURRENT="(* current link env.)"
-    else
-    CURRENT=""
-fi
-echo "Project: ${o} ${CURRENT}"
-docker ps|grep ${o}_
-echo ""
+CURRENT_LINK=$(readlink .env)
+ENV_FILES=$(find envs -maxdepth 1 -type f -not -path 'envs/.*')
+
+for FILE in $ENV_FILES; do
+    PROJECT_NAME=$(grep -Ei "^PROJECT=" "$FILE" | cut -d= -f2 | tr -d '\r')
+    
+    STATUS=""
+    if [[ "$FILE" == "$CURRENT_LINK" ]]; then
+        STATUS="(* current)"
+    fi
+
+    echo "Project: ${PROJECT_NAME} ${STATUS}"
+    # Show running containers for this project
+    docker ps --filter "name=${PROJECT_NAME}_" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+    echo ""
 done

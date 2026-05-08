@@ -1,43 +1,54 @@
 #!/bin/bash
-if [ ! -f .env ];then
-    echo "dot env file is required."
-    exit
+
+if [[ ! -f .env ]]; then
+    echo "Error: .env file is required."
+    exit 1
 fi
+
 export CPU=$(uname -m)
 source .env
 source .functions.sh
-export PHPENV=$(dirname $0)
+export PHPENV=$(dirname "$0")
 SHELL="${SH:-bash}"
 
-
-if [[ "$1" = 'info' && "$2" = 'all' ]];then
-    shift 2
-    . ./all
+# Info subcommands
+if [[ "$1" == 'info' ]]; then
+    if [[ "$2" == 'all' ]]; then
+        shift 2
+        . ./all
+        exit
+    elif [[ "$2" == 'ports' ]]; then
+        shift 2
+        ./ports
+        exit
+    fi
+    shift 1
+    ./info
     exit
 fi
 
-if [[ "$1" = 'info' && "$2" = 'ports' ]];then
-    shift 2
-    ./ports
-    exit
-fi
-
-if [[ "$1" == '-V' || "$1" == '--v' ]];then
-    cat ${PHPENV}/etc/phpenv-release
+# Version check
+if [[ "$1" == '-V' || "$1" == '--version' ]]; then
+    if [[ -f "${PHPENV}/etc/phpenv-release" ]]; then
+        cat "${PHPENV}/etc/phpenv-release"
+    else
+        echo "phpenv version unknown"
+    fi
     exit 0
 fi
 
-if [[ "$1" = 'commit' ]];then
-    if [[ "$2" != "" ]];then
-        docker ps -f name=$2|grep -vE '^CONTAINER'|awk '{print "CONTAINER ID:"$1," IMAGE:"$2," NAME:" $NF}'
-        NAMES_NUMBER=$(docker ps -f name=$2|grep -vE '^CONTAINER'|awk '{print $1,$NF}'|wc -l)
-        if [ $NAMES_NUMBER -eq 1 ];then
-            CONTAINER_NAME=$(docker ps -f name=$2|grep -vE '^CONTAINER'|awk '{print $NF}')
-            COMMIT_ARG=$(docker ps|grep $CONTAINER_NAME|awk '{print $1,$2}')
-            echo $COMMIT_ARG
-            echo "docker commit $COMMIT_ARG"
-            IMAGE_NAME=$(docker ps -f name=$2|grep -vE '^CONTAINER'|awk '{print $2}')
-            echo "Do you wish to run above command to change for this image ${IMAGE_NAME}?"
+# Docker commit functionality
+if [[ "$1" == 'commit' ]]; then
+    if [[ -n "$2" ]]; then
+        docker ps -f "name=$2" | grep -vE '^CONTAINER' | awk '{print "CONTAINER ID:"$1," IMAGE:"$2," NAME:" $NF}'
+        NAMES_NUMBER=$(docker ps -f "name=$2" | grep -vE '^CONTAINER' | awk '{print $1,$NF}' | wc -l)
+        if [[ $NAMES_NUMBER -eq 1 ]]; then
+            CONTAINER_NAME=$(docker ps -f "name=$2" | grep -vE '^CONTAINER' | awk '{print $NF}')
+            COMMIT_ARG=$(docker ps | grep "$CONTAINER_NAME" | awk '{print $1,$2}')
+            echo "$COMMIT_ARG"
+            echo "Command: docker commit $COMMIT_ARG"
+            IMAGE_NAME=$(docker ps -f "name=$2" | grep -vE '^CONTAINER' | awk '{print $2}')
+            echo "Do you wish to run the above command to change image ${IMAGE_NAME}?"
             select yn in "Yes" "No"; do
                 case $yn in
                     Yes ) docker commit $COMMIT_ARG; break;;
@@ -46,172 +57,157 @@ if [[ "$1" = 'commit' ]];then
             done
             exit
         fi
-        if [ $NAMES_NUMBER -gt 1 ];then
-            echo "Unable commit by multiple names."
-            else
-            echo "container name not found."
+        if [[ $NAMES_NUMBER -gt 1 ]]; then
+            echo "Error: Unable to commit when multiple containers match the name."
+        else
+            echo "Error: Container name not found."
         fi
         exit
     else
         console ps
-        echo "You have a running container, please select one to commit."
+        echo "A running container is required. Please select one to commit:"
         echo "./console commit <Name>"
-    exit
+        exit
     fi
 fi
 
-if [[ "$1" = 'help' ]];then
-    echo "Usage: $0 [all|info|start|stop|link|reload|secret|commit|drive|stats|<project>]"
-    echo "  all: show all projects running status"
-    echo "  info: show .env file"
-    echo "  start: start .env project"
-    echo "  stop: stop .env project"
-    echo "  stats: view all projects stats"
-    echo "  secret: show or generate Redis password in services/redis.yml"
-    echo "  commit: commit image for running container"
-    echo "  drive: run bash for drive.yml defualt service name"
-    echo "  help: $0"
-    exit;
+# Help
+if [[ "$1" == 'help' ]]; then
+    echo "Usage: $0 [all|info|start|stop|restart|link|reload|secret|commit|drive|stats|artisan|<project>]"
+    echo "  all:     Show status for all projects"
+    echo "  info:    Show current .env configuration"
+    echo "  start:   Start the project defined in .env"
+    echo "  stop:    Stop the project defined in .env"
+    echo "  restart: Restart the project defined in .env"
+    echo "  stats:   View all projects statistics"
+    echo "  secret:  Show or generate Redis password in services/redis.yml"
+    echo "  commit:  Commit changes for a running container"
+    echo "  drive:   Enter the drive container"
+    echo "  artisan: Run Laravel artisan commands"
+    echo "  help:    Show this help message"
+    exit
 fi
 
-if [[ "$1" = 'all' ]];then
+# Multi-project status
+if [[ "$1" == 'all' ]]; then
     shift 1
     . ./all
     exit
 fi
 
-if [ "$1" = 'info' ];then
-    shift 1
-    ./info
+# Project management shorthands
+case "$1" in
+    stop|start|restart|down|up)
+        cmd=$1
+        shift 1
+        if [[ "$cmd" == "up" || "$cmd" == "start" ]]; then
+            sync_php_fpm_www_conf_from_env
+        fi
+
+        if [[ "$cmd" == "start" ]]; then
+            console up -d "$@"
+        elif [[ "$cmd" == "stop" ]]; then
+            console down "$@"
+        else
+            console "$cmd" "$@"
+        fi
+        exit
+        ;;
+    stats)
+        shift 1
+        ./stats
+        exit
+        ;;
+    link)
+        shift 1
+        ./link "$@"
+        exit
+        ;;
+    reload)
+        . ./reload
+        exit
+        ;;
+    secret)
+        print_or_rotate_redis_yml_secret
+        exit $?
+        ;;
+    artisan)
+        shift 1
+        docker-compose -p "${PROJECT}" exec php php artisan "$@"
+        exit 0
+        ;;
+    ssh)
+        shift 1
+        exec_bash "ssh" "$@"
+        ;;
+    drive)
+        shift 1
+        exec_bash "drive" "public"
+        ;;
+esac
+
+# Workspace Entry (Default)
+if [[ -z "$1" ]]; then
+    exec_bash "$(get_workspace)"
     exit
 fi
 
-if [ "$1" = 'stop' ];then
-    console $@
-    exit
-fi
-
-if [ "$1" = 'start' ];then
-    shift 1
-    console up -d $@
-    exit
-fi
-
-if [ "$1" = 'restart' ];then
-    shift 1
-    console restart $@
-    exit
-fi
-
-if [ "$1" = 'down' ];then
-    shift 1
-    console down $@
-    exit
-fi
-
-if [ "$1" = 'up' ];then
-    shift 1
-    console up $@
-    exit
-fi
-
-if [ "$1" = 'stats' ];then
-    shift 1
-    ./stats
-    exit
-fi
-
-if [ "$1" = 'link' ];then
-    shift 1
-    ./link $1
-    exit
-fi
-#reload nginx
-if [ "$1" = 'reload' ];then
-    . ./reload
-    exit
-fi
-
-# Redis requirepass: show current secret, or replace default with random and print
-if [ "$1" = 'secret' ]; then
-    print_or_rotate_redis_yml_secret
-    exit $?
-fi
-
-#執行容器內的命令
-if [ "$1" = 'artisan' ];then
-    docker-compose -p ${PROJECT} exec php php $@
-    exit 0
-fi
-
-#Default Workspace
-if [ "$1" = '' ];then
-    exec_bash $(get_workspace)
-    exit
-fi
-
-#進入ssh容器
-if [ "$1" = 'ssh' ];then
-    exec_bash $1
-fi
-
-#進入Drive容器
-if [ "$1" = 'drive' ];then
-    exec_bash $1 public
-fi
-
-#Check Project Image
-if [ "$1" = 'build' ];then
+# Build Project
+if [[ "$1" == 'build' ]]; then
     sync_php_fpm_www_conf_from_env
-    if [ $? -eq 0 ];then
+    if [[ $? -eq 0 ]]; then
+        shift 1
+        build_args=("$@")
+        
+        # Identify service name for the "images" check (first arg that doesn't start with -)
+        service_name=""
+        for arg in "${build_args[@]}"; do
+            if [[ ! "$arg" =~ ^- ]]; then
+                service_name="$arg"
+                break
+            fi
+        done
+
         args=$(get_args)
-        #echo "docker-compose -p ${PROJECT} ${args} build --no-cache"
-        IMAGE_IDS=$(docker-compose -p ${PROJECT} ${args} images $2|sed 1d|awk '{print $2}')
-        echo $IMAGE_IDS
+        IMAGE_IDS=$(docker-compose -p "${PROJECT}" ${args} images ${service_name:+"$service_name"} | sed 1d | awk '{print $2}')
         FOUND=0
-        for i in ${IMAGE_IDS}
-        do
-            if [ $FOUND -eq 0 ];then
-                echo "List images used by the created containers"
+        for i in ${IMAGE_IDS}; do
+            if [[ $FOUND -eq 0 ]]; then
+                echo "List of images used by the created containers:"
             fi
             FOUND=1
         done
-        if [ $FOUND -eq 1 ];then
-                docker-compose -p ${PROJECT} ${args} images $2|sed 1d
-                echo
-                read -p "Press (\"y\") to build, or any other key to quit:" -n 1 -r
-                echo    # (optional) move to a new line
-                if [[ ! $REPLY =~ ^[Yy]$ ]]
-                then
-                    exit;
-                fi
-                docker-compose -p ${PROJECT} ${args} $1 $2
+        if [[ $FOUND -eq 1 ]]; then
+            docker-compose -p "${PROJECT}" ${args} images ${service_name:+"$service_name"} | sed 1d
+            echo
+            read -p "Press ('y') to build, or any other key to quit: " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]]; then
                 exit
-            else
-                docker-compose -p ${PROJECT} ${args} $1 $2
-                exit
+            fi
         fi
-    fi
-
-fi
-
-#檢測是否為.env名稱，如果是就進入
-if [ "$1" ];then
-    if [ -f envs/$1 ];then
-            #重新連結並進入容器
-            ln -sf envs/${1} .env
-            PROJECT=$(get_project)
-            echo "Link to Project of "${PROJECT}
-            shift 1
-            echo "Entering service $(get_workspace) as workspace"
-            console exec $(get_workspace) ${SHELL}
+        docker-compose -p "${PROJECT}" ${args} build "${build_args[@]}"
         exit
     fi
 fi
 
-if [[ "$3" != "mysqldump" ]];then
- echo $CPU
- echo Project: $PROJECT
+# Switch project by env name
+if [[ -n "$1" ]]; then
+    if [[ -f "envs/$1" ]]; then
+        ln -sf "envs/${1}" .env
+        PROJECT=$(get_project)
+        echo "Switched to project: ${PROJECT}"
+        shift 1
+        echo "Entering workspace service: $(get_workspace)"
+        console exec "$(get_workspace)" "${SHELL}"
+        exit
+    fi
 fi
 
-console $@
+# Final fallback to native compose
+if [[ "$3" != "mysqldump" ]]; then
+    echo "CPU: $CPU"
+    echo "Project: $PROJECT"
+fi
+
+console "$@"
