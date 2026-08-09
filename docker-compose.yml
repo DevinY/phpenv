@@ -17,6 +17,7 @@ services:
   volumes:
   - ${FOLDER-./project}:/var/www/html
   - ./etc:/etc/nginx/conf.d
+  - php-socket:/var/run/php-fpm
   restart: unless-stopped
   networks:
     - dlaravel_net
@@ -39,6 +40,7 @@ services:
     - ./etc/cache:/home/dlaravel/.composer/cache
     - ./etc/supervisor:/etc/supervisor/conf.d
     - ./etc/disable-db-ssl:/etc/mysql/conf.d/disable-ssl.cnf
+    - php-socket:/var/run/php-fpm
   environment:
     - TZ=Asia/Taipei
     - project=${HOST-localhost}
@@ -49,4 +51,8 @@ services:
 #=== top-level netowks key ======================
 networks:
     dlaravel_net:
+
+volumes:
+  php-socket:
+
 
