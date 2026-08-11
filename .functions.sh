@@ -124,7 +124,8 @@ function exec_bash() {
         if [[ $? -eq 1 ]]; then
             # Fallback to docker run if exec fails
             echo "Fallback: docker run..."
-            docker run --rm -v "$(readlink -f ./):/var/www/html" -ti "${project}_php" ${SHELL}
+            local folder=$(get_env_val "FOLDER" "./project")
+            docker run --rm -v "$(readlink -f "${folder}"):/var/www/html" -w "/var/www/html/${subdir}" -u dlaravel -ti "${project}_php" ${SHELL}
         fi
     else
         docker-compose -p "${project}" ${args} exec "${workspace}" ${SHELL}
