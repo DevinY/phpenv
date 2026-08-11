@@ -21,7 +21,7 @@ services:
   networks:
     - dlaravel_net
  db:
-  image: mariadb:10.5.5
+  image: mariadb:12.3
   #ports:
   #  - ${DB_PORT-1250}:3306
   volumes:

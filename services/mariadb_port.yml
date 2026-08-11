@@ -1,6 +1,6 @@
 services:
  db:
-  image: mariadb:10.5.5
+  image: mariadb:12.3
   hostname: db
   ports:
     - ${DB_PORT-1250}:3306
