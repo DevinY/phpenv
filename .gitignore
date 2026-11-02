@@ -6,6 +6,7 @@ project
 cert.crt
 cert.key
 etc/cache
+etc-tcp/cache
 v3.ext
 *.swp
 .DS_Store

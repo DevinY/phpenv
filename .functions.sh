@@ -50,9 +50,18 @@ function get_args() {
     echo "$args"
 }
 
-# Sync php-fpm pool user/group in etc/php-fpm.d/www.conf with USER_ID/GROUP_ID from .env
+# php-fpm pool file for the active compose file (socket uses etc/, TCP uses etc-tcp/)
+function php_fpm_www_conf_path() {
+    if [[ "$(default_yml_file)" == "docker-compose-tcp" ]]; then
+        echo "${PHPENV:-.}/etc-tcp/php-fpm.d/www.conf"
+    else
+        echo "${PHPENV:-.}/etc/php-fpm.d/www.conf"
+    fi
+}
+
+# Sync php-fpm pool user/group in www.conf with USER_ID/GROUP_ID from .env
 function sync_php_fpm_www_conf_from_env() {
-    local www_conf="${PHPENV:-.}/etc/php-fpm.d/www.conf"
+    local www_conf=$(php_fpm_www_conf_path)
     [[ -f "$www_conf" ]] || return 0
 
     local uid=$(get_env_val "USER_ID" "1000")
@@ -92,8 +101,16 @@ function print_or_rotate_redis_yml_secret() {
     fi
 }
 
+function ensure_composer_cache_dir() {
+    if [[ "$(default_yml_file)" == "docker-compose-tcp" ]]; then
+        mkdir -p "${PHPENV:-.}/etc-tcp/cache"
+    else
+        mkdir -p "${PHPENV:-.}/etc/cache"
+    fi
+}
+
 function start() {
-    mkdir -p etc/cache
+    ensure_composer_cache_dir
     touch authorized_keys
     source .env
     echo "${APP_URL}"

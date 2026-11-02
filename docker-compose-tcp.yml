@@ -1,0 +1,53 @@
+services:
+#=== web service (php-fpm via tcp :9000) ======================
+ web:
+  build:
+    context: ./dockerfiles
+    dockerfile: Dockerfile-nginx
+    args:
+      USER_ID: ${USER_ID-1000}
+      GROUP_ID: ${GROUP_ID-1000}
+  image: ${PROJECT}_nginx
+  dns: 8.8.8.8
+  depends_on:
+    - php
+  ports:
+    - ${HTTP_PORT-1050}:80
+    #- ${HTTPS_PORT-1250}:443
+  volumes:
+  - ${FOLDER-./project}:/var/www/html
+  - ./etc-tcp/nginx:/etc/nginx/conf.d
+  restart: unless-stopped
+  networks:
+    - dlaravel_net
+
+#=== php service ==========================
+ php:
+  build:
+    context: ./dockerfiles
+    dockerfile: Dockerfile-php-${CPU-x86_64}
+    args:
+      USER_ID: ${USER_ID-1000}
+      GROUP_ID: ${GROUP_ID-1000}
+  image: ${PROJECT}_php
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  expose:
+    - "9000"
+  volumes:
+    - ./etc-tcp/php:/usr/local/etc/php/conf.d
+    - ${FOLDER-./project}:/var/www/html
+    - ./etc-tcp/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
+    - ./etc-tcp/cache:/home/dlaravel/.composer/cache
+    - ./etc-tcp/supervisor:/etc/supervisor/conf.d
+    - ./etc-tcp/disable-db-ssl:/etc/mysql/conf.d/disable-ssl.cnf
+  environment:
+    - TZ=Asia/Taipei
+    - project=${HOST-localhost}
+  command: ["sudo", "/usr/bin/supervisord"]
+  restart: unless-stopped
+  networks:
+    - dlaravel_net
+#=== top-level netowks key ======================
+networks:
+    dlaravel_net:

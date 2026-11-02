@@ -101,6 +101,7 @@ case "$1" in
         cmd=$1
         shift 1
         if [[ "$cmd" == "up" || "$cmd" == "start" ]]; then
+            ensure_composer_cache_dir
             sync_php_fpm_www_conf_from_env
         fi
 
