@@ -1,27 +1,53 @@
 # phpenv
-Docker-based PHP containerized project execution environment.
 
-This project allows you to manage multiple PHP projects easily using Docker. By specifying project paths via `.env` files and utilizing SSH services, you can seamlessly connect to your containers using VSCode's Remote-SSH.
+> If docker-compose manages containers, **phpenv manages multiple docker-compose projects.**
+
+A Docker-based PHP runtime for **many projects on one machine** — each project gets its own `.env`, ports, services, and web stack, while you keep the **same** commands: `./link`, `./start`, `./console build`.
+
+```text
+  envs/project-a   →  DEFAULT + SERVICES + ports  →  compose stack A
+  envs/project-b   →  DEFAULT + SERVICES + ports  →  compose stack B
+                         ↑
+              one mental model, many projects
+```
+
+## Why phpenv
+
+Most setups stop at “one `docker-compose.yml` for one app.”  
+phpenv adds an **environment router** on top:
+
+| Idea | What you get |
+| --- | --- |
+| **Per-project `envs/`** | Isolate `PROJECT`, ports, `FOLDER`, UID/GID without copying the whole repo |
+| **`./link`** | Switch the active project by symlinking `.env` |
+| **`DEFAULT`** | Swap Nginx socket / Nginx TCP / Apache — **same** start/build/reload flow |
+| **`SERVICES`** | Opt-in MariaDB, Redis, SSH, drive… via compose overlays |
+| **Split `etc*` trees** | Config stays tied to how PHP-FPM talks to the web server |
+
+You do **not** learn a second workflow when you change stacks. Change one line in `.env`, rebuild, restart.
 
 ## Features
-- Multi-project support via isolated `.env` files in the `envs/` directory.
-- Easy SSH access to containers.
-- Configurable services (MariaDB, Redis, Nginx/Apache, PHP, etc.).
-- Web stack variants via `DEFAULT` (Nginx socket / Nginx TCP / Apache socket).
-- Automated user/group ID syncing for Linux environments.
+
+- Multi-project isolation via `envs/` + `./link`
+- Web stacks via `DEFAULT`: Nginx (unix socket), Nginx (TCP `:9000`), Apache (unix socket, **`.htaccess`**)
+- Optional services from `services/*.yml` (`SERVICES="mariadb redis"`)
+- PHP images based on [`deviny/fpm`](https://hub.docker.com/r/deviny/fpm) (8.2–8.5 pins, plus legacy 7.4)
+- SSH-friendly containers for VS Code Remote-SSH / editors
+- Auto-sync PHP-FPM `user`/`group` from `USER_ID` / `GROUP_ID`
+- Batch ops across all linked projects: `./all start` / `./all stop`
 
 ## Getting Started
 
-### Step 1: Initialize Environment
-Run the `link` script to create a default `.env` configuration template.
+### 1. Initialize
+
 ```bash
 ./link
 ```
 
-### Step 2: Configure Environment
-Edit the generated `.env` file to match your project requirements. You can set the project name, ports, and enabled services.
+Creates `envs/default` and links it as `.env` if needed.
 
-**Example `.env` Settings:**
+### 2. Configure `.env`
+
 ```ini
 # Enabled services (space-separated)
 SERVICES="mariadb redis"
@@ -41,30 +67,32 @@ GROUP_ID=1000
 # DEFAULT=docker-compose-apache
 ```
 
-### Step 3: Choose Web Stack (`DEFAULT`)
+### 3. Choose web stack (`DEFAULT`)
 
-| `DEFAULT=` | Compose file | Web server | PHP-FPM | Config tree |
+| `DEFAULT=` | Compose file | Web | PHP-FPM | Config |
 | --- | --- | --- | --- | --- |
 | `docker-compose` (default) | `docker-compose.yml` | Nginx | unix socket | `etc/` |
 | `docker-compose-tcp` | `docker-compose-tcp.yml` | Nginx | TCP `:9000` | `etc-tcp/` |
-| `docker-compose-apache` | `docker-compose-apache.yml` | **Apache** | unix socket | `etc-apache/` (+ shared `etc/php`, `etc/supervisor`, `etc/cache`) |
+| `docker-compose-apache` | `docker-compose-apache.yml` | Apache | unix socket | `etc-apache/` (+ shared `etc/php`, `etc/supervisor`, `etc/cache`) |
 
-Apache mode enables **`.htaccess`** (`AllowOverride All`).  
-If TLS is terminated in front of the container, prefer `X-Forwarded-Proto` in rewrite rules instead of relying only on `%{HTTPS}` (avoids redirect loops).
+**Apache** enables project **`.htaccess`** (`AllowOverride All`).  
+If TLS terminates in front of the container, prefer `X-Forwarded-Proto` in rewrite rules instead of only `%{HTTPS}` (avoids redirect loops).
 
-After changing `DEFAULT`, rebuild and restart:
+After changing `DEFAULT`:
+
 ```bash
 ./console build
 ./restart
 ```
 
-### Step 4: Manage Services
-Check the `services/` directory for available services (e.g., `mariadb`, `redis`, `drive`). Enable them by adding them to the `SERVICES` variable in your `.env`.
+### 4. Optional services
 
-### Step 5: Build and Start
-Build the containers (required only once or when changing user/group IDs / web stack).
+Add names from `services/` to `SERVICES` in `.env` (e.g. `mariadb`, `redis`, `drive`).
+
+### 5. Build and start
+
 ```bash
-./console build
+./console build   # once, or after UID/GID / DEFAULT / PHP image changes
 ./start
 ```
 
@@ -72,34 +100,40 @@ Build the containers (required only once or when changing user/group IDs / web s
 
 | Command | Description |
 | --- | --- |
-| `./link` | Select or initialize an environment template. |
-| `./link <project>` | Quickly link to a specific project in `envs/`. |
-| `./start` | Start the current project containers. |
-| `./stop` | Stop the current project containers. |
-| `./restart` | Restart the current project containers. |
-| `./reload` | Reload Nginx or Apache config without restarting (follows `DEFAULT`). |
-| `./info` | Display current `.env` information. |
-| `./stats` | View running status of all projects in `envs/`. |
-| `./artisan` | Run Laravel artisan commands in the PHP container. |
-| `./console` | Main CLI for Docker operations and project management. |
+| `./link` | Select or initialize an environment in `envs/` |
+| `./link <project>` | Quickly link a specific `envs/<project>` |
+| `./start` | Start the current project containers |
+| `./stop` | Stop the current project containers |
+| `./restart` | Restart the current project containers |
+| `./reload` | Reload Nginx or Apache (follows `DEFAULT`) |
+| `./info` | Show current `.env` |
+| `./stats` | Status of all projects in `envs/` |
+| `./artisan` | Run Laravel Artisan inside the PHP container |
+| `./console` | Docker / project CLI (`build`, `ps`, `exec`, …) |
 
-### Advanced: Multiple Environments
+### Many projects
+
 ```bash
-./all        # Check status of all projects in envs/
-./all start  # Start all projects in envs/
-./all stop   # Stop all projects in envs/
+./all          # status of every env
+./all start    # start all
+./all stop     # stop all
 ```
 
-### Using Console
-The `./console` script is the primary entry point. Running it without arguments will enter the PHP container workspace.
+### Console
+
 ```bash
-./console             # Enter PHP workspace
-./console exec db bash # Enter DB container
-./console help        # Show all subcommands
+./console                 # enter PHP workspace
+./console exec db bash    # enter DB container
+./console help            # subcommands
+./console build           # build images for current DEFAULT stack
 ```
 
 ## Updates
-To update only the core Bash scripts and get the latest fixes:
+
+Refresh core bash helpers without touching your project trees:
+
 ```bash
 ./update_bash.sh
 ```
+
+PHP base images: see tags on [deviny/fpm](https://hub.docker.com/r/deviny/fpm/tags). Pin versions live under `dockerfiles/Dockerfile-php*`.
