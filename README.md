@@ -6,7 +6,8 @@ This project allows you to manage multiple PHP projects easily using Docker. By 
 ## Features
 - Multi-project support via isolated `.env` files in the `envs/` directory.
 - Easy SSH access to containers.
-- Configurable services (MariaDB, Redis, Nginx, PHP, etc.).
+- Configurable services (MariaDB, Redis, Nginx/Apache, PHP, etc.).
+- Web stack variants via `DEFAULT` (Nginx socket / Nginx TCP / Apache socket).
 - Automated user/group ID syncing for Linux environments.
 
 ## Getting Started
@@ -33,15 +34,38 @@ DB_PORT=1250
 SSH_PORT=2222
 USER_ID=1000
 GROUP_ID=1000
+
+# Web stack (optional; default is docker-compose)
+# DEFAULT=docker-compose
+# DEFAULT=docker-compose-tcp
+# DEFAULT=docker-compose-apache
 ```
 
-### Step 3: Manage Services
-Check the `services/` directory for available services (e.g., `mariadb`, `redis`, `drive`). Enable them by adding them to the `SERVICES` variable in your `.env`.
+### Step 3: Choose Web Stack (`DEFAULT`)
 
-### Step 4: Build and Start
-Build the containers (required only once or when changing user/group IDs).
+| `DEFAULT=` | Compose file | Web server | PHP-FPM | Config tree |
+| --- | --- | --- | --- | --- |
+| `docker-compose` (default) | `docker-compose.yml` | Nginx | unix socket | `etc/` |
+| `docker-compose-tcp` | `docker-compose-tcp.yml` | Nginx | TCP `:9000` | `etc-tcp/` |
+| `docker-compose-apache` | `docker-compose-apache.yml` | **Apache** | unix socket | `etc-apache/` (+ shared `etc/php`, `etc/supervisor`, `etc/cache`) |
+
+Apache mode enables **`.htaccess`** (`AllowOverride All`).  
+If TLS is terminated in front of the container, prefer `X-Forwarded-Proto` in rewrite rules instead of relying only on `%{HTTPS}` (avoids redirect loops).
+
+After changing `DEFAULT`, rebuild and restart:
 ```bash
 ./console build
+./restart
+```
+
+### Step 4: Manage Services
+Check the `services/` directory for available services (e.g., `mariadb`, `redis`, `drive`). Enable them by adding them to the `SERVICES` variable in your `.env`.
+
+### Step 5: Build and Start
+Build the containers (required only once or when changing user/group IDs / web stack).
+```bash
+./console build
+./start
 ```
 
 ## Command Reference
@@ -53,7 +77,7 @@ Build the containers (required only once or when changing user/group IDs).
 | `./start` | Start the current project containers. |
 | `./stop` | Stop the current project containers. |
 | `./restart` | Restart the current project containers. |
-| `./reload` | Reload Nginx configuration without restarting. |
+| `./reload` | Reload Nginx or Apache config without restarting (follows `DEFAULT`). |
 | `./info` | Display current `.env` information. |
 | `./stats` | View running status of all projects in `envs/`. |
 | `./artisan` | Run Laravel artisan commands in the PHP container. |

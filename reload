@@ -6,5 +6,11 @@ fi
 source .env
 source .functions.sh
 
-echo "Reloading Nginx for project: ${PROJECT}..."
-docker-compose -p "${PROJECT}" exec web sh -c "nginx -s reload"
+DEFAULT_YML=$(default_yml_file)
+echo "Reloading web for project: ${PROJECT} (${DEFAULT_YML})..."
+
+if [[ "${DEFAULT_YML}" == "docker-compose-apache" ]]; then
+    docker-compose -p "${PROJECT}" exec web sh -c "httpd -k graceful"
+else
+    docker-compose -p "${PROJECT}" exec web sh -c "nginx -s reload"
+fi

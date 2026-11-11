@@ -1,0 +1,16 @@
+FROM httpd:2.4
+ARG USER_ID
+ENV USER_ID=${USER_ID:-1000}
+
+# Enable modules for PHP-FPM, .htaccess rewrite, and reverse-proxy headers
+RUN sed -i \
+    -e 's/^#\(LoadModule .*mod_proxy.so\)/\1/' \
+    -e 's/^#\(LoadModule .*mod_proxy_fcgi.so\)/\1/' \
+    -e 's/^#\(LoadModule .*mod_rewrite.so\)/\1/' \
+    -e 's/^#\(LoadModule .*mod_remoteip.so\)/\1/' \
+    -e 's/^#\(LoadModule .*mod_headers.so\)/\1/' \
+    -e 's/^#\(LoadModule .*mod_setenvif.so\)/\1/' \
+    /usr/local/apache2/conf/httpd.conf \
+ && mkdir -p /usr/local/apache2/conf/conf.d \
+ && printf '\n# phpenv per-project vhosts\nIncludeOptional conf/conf.d/*.conf\n' \
+    >> /usr/local/apache2/conf/httpd.conf

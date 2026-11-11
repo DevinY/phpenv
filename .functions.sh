@@ -50,13 +50,22 @@ function get_args() {
     echo "$args"
 }
 
-# php-fpm pool file for the active compose file (socket uses etc/, TCP uses etc-tcp/)
+# php-fpm pool file for the active compose file
+# - docker-compose / default: etc/ (nginx + unix socket)
+# - docker-compose-tcp: etc-tcp/ (nginx + TCP :9000)
+# - docker-compose-apache: etc-apache/ (Apache + unix socket)
 function php_fpm_www_conf_path() {
-    if [[ "$(default_yml_file)" == "docker-compose-tcp" ]]; then
-        echo "${PHPENV:-.}/etc-tcp/php-fpm.d/www.conf"
-    else
-        echo "${PHPENV:-.}/etc/php-fpm.d/www.conf"
-    fi
+    case "$(default_yml_file)" in
+        docker-compose-tcp)
+            echo "${PHPENV:-.}/etc-tcp/php-fpm.d/www.conf"
+            ;;
+        docker-compose-apache)
+            echo "${PHPENV:-.}/etc-apache/php-fpm.d/www.conf"
+            ;;
+        *)
+            echo "${PHPENV:-.}/etc/php-fpm.d/www.conf"
+            ;;
+    esac
 }
 
 # Sync php-fpm pool user/group in www.conf with USER_ID/GROUP_ID from .env
@@ -102,11 +111,15 @@ function print_or_rotate_redis_yml_secret() {
 }
 
 function ensure_composer_cache_dir() {
-    if [[ "$(default_yml_file)" == "docker-compose-tcp" ]]; then
-        mkdir -p "${PHPENV:-.}/etc-tcp/cache"
-    else
-        mkdir -p "${PHPENV:-.}/etc/cache"
-    fi
+    case "$(default_yml_file)" in
+        docker-compose-tcp)
+            mkdir -p "${PHPENV:-.}/etc-tcp/cache"
+            ;;
+        *)
+            # default socket + apache share etc/cache
+            mkdir -p "${PHPENV:-.}/etc/cache"
+            ;;
+    esac
 }
 
 function start() {
